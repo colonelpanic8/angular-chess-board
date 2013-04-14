@@ -28,6 +28,7 @@ var chessBoard = angular.module('chessBoard', [])
             for (var i = 0; i < 64; i++) {
                 $scope.squares.push(new Square(i, null));
             }
+            $scope.squares[0].piece = {imageURL: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/wk.png"}
         }
         return {
             restrict: 'E',
@@ -42,15 +43,28 @@ var chessBoard = angular.module('chessBoard', [])
             scope: {
                 square: "=square"
             },
-            template: '<div><img style="width: {{ square.size }}px; height: {{ square.size }}px; background: {{ square.color() }}; position: absolute; left: {{ square.getXPosition() }}px; top: {{ square.getYPosition() }}px;"></div>'
+            template: '<div style="width: {{ square.size }}px; height: {{ square.size }}px; background: {{ square.color() }}; position: absolute; left: {{ square.getXPosition() }}px; top: {{ square.getYPosition() }}px;"><ng-chess-piece piece="square.piece"></div>'
         }
     }).directive('ngChessPiece', function () {
         return {
             restrict: 'E',
             replace: true,
             scope: {
-                peice: "=peice"
+                piece: "=piece"
             },
-            template: '<span>tt</span>'
+            template: '<div ng-switch on="piece"><span ng-switch-when="null"></span><img src="{{ piece.imageURL }}" style="width: 100%; height: 100%;" ng-switch-default></div>',
+            link: function (scope, element, attrs) {
+                element
+                    .draggable({disable: false})
+                    .draggable({
+                        start: function(event, ui) {
+                            $(this).css('z-index', 9999)
+                        },
+                        stop: function(event, ui) {
+                        },
+                        drag: function(event, ui) {
+                        }
+                    })
+            }
         }
     });
