@@ -1,0 +1,14 @@
+<html>
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.1/angular.min.js"></script>
+    <script src="../src/chessboard.js"></script>
+    <script type="text/javascript">
+      var app = angular.module('app', ['chessBoard']);
+    </script>
+  </head>
+  <body>
+  <div ng-app="app">
+    <ng-chess-board square-size="70" light-color="white" dark-color="black"></ng-chess-board>
+  </div>
+  </body>
+</html>
