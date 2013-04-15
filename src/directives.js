@@ -1,10 +1,8 @@
-var chessBoard = angular.module('chessBoard', [])
-  .directive('ngChessBoard', function () {
+angular.module('chessBoard').directive('ngChessBoard', function () {
     
-    function chessBoardController($scope, $attrs) {
-      var Square = function (index, contents) {
+    function chessBoardController($scope, $attrs, chessBoard) {
+      var Square = function (index) {
         this.index = index;
-        this.contents = contents
       }
       Square.prototype.size = $attrs.squareSize
       Square.prototype.lightColor = $attrs.lightColor
@@ -26,9 +24,11 @@ var chessBoard = angular.module('chessBoard', [])
       }
       $scope.squares = []
       for (var i = 0; i < 64; i++) {
-        $scope.squares.push(new Square(i, null));
+        $scope.squares.push(new Square(i));
       }
       $scope.squares[0].piece = {imageURL: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/wk.png"}
+      $scope.squares[14].piece = {imageURL: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/bk.png"}
+      
     }
     return {
       restrict: 'E',
@@ -47,16 +47,16 @@ var chessBoard = angular.module('chessBoard', [])
       link: function (scope, element, attrs) {
         element.droppable({
           accept: function(draggable) {
-            piece_scope = angular.element(event.toElement).scope()
             return true;
           },
           drop: function(event, ui) {
-            piece_scope = angular.element(event.toElement).scope()
-            scope.square.piece = piece_scope.square.piece
-            piece_scope.square.piece = null
-            piece_scope.$apply()
-            scope.$apply()
-            console.log("moved")
+            piece_scope = angular.element(event.toElement || event.relatedTarget).scope()
+            if (piece_scope.square != scope.square) {
+              scope.square.piece = piece_scope.square.piece
+              piece_scope.square.piece = null
+              piece_scope.$apply()
+              scope.$apply()
+            }
           }
         })
       }
@@ -68,24 +68,24 @@ var chessBoard = angular.module('chessBoard', [])
       scope: {
         square: "=square"
       },
-      template: '<img src="{{ square.piece.imageURL }}" style="width: 100%; height: 100%; border: none;">',
+      template: '<img src="{{ square.piece.imageURL }}" style="width: 100%;" ng-hide="square.piece == null">',
       link: function (scope, element, attrs) {
         element.draggable({zIndex: 999999})
-        element
-          .draggable({
+        element.draggable({
             disable: false,
             revert: "invalid",
-          })
-          .draggable({
+          }).draggable({
             start: function(event, ui) {
             },
             stop: function(event, ui) {
+              element.css("top", "0px");
+              element.css("left", "0px");
             },
             drag: function(event, ui) {
             },
             deactivate: function(event, ui) {
             }
-          })
+          });
       }
     }
   });

@@ -4,16 +4,25 @@
     <script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.1/angular.min.js"></script>
     <script src="../lib/patch_draggable.js"></script>
-    <script src="../src/chessboard.js"></script>
+    <script src="../src/module.js"></script>
+    <script src="../src/board.js"></script>
+    <script src="../src/directives.js"></script>
     <script type="text/javascript">
       var app = angular.module('app', ['chessBoard']);
     </script>
   </head>
   <body>
   <div ng-app="app">
-    <ng-chess-board 
-       square-size="70"
-       light-color="white" dark-color="black">
+    <div>
+      <ng-chess-board 
+         square-size="70"
+         light-color="white" dark-color="black" />
+    </div>
+    <div style="position: absolute; top: 800px;">
+      <ng-chess-board 
+         square-size="70"
+         light-color="white" dark-color="black" />
+    </div>
   </div>
   </body>
 </html>
