@@ -1,6 +1,14 @@
+pieceNameToImage = {
+  k: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/wk.png",
+  K: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/bk.png",
+  p: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/wp.png",
+  P: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/bp.png"
+}
+
 angular.module('chessBoard').directive('ngChessBoard', function () {
     
-    function chessBoardController($scope, $attrs, chessBoard) {
+    function chessBoardController($scope, $attrs, ChessBoard) {
+      chessBoard = new ChessBoard()
       var Square = function (index) {
         this.index = index;
       }
@@ -22,13 +30,20 @@ angular.module('chessBoard').directive('ngChessBoard', function () {
       Square.prototype.color = function () {
         return (this.getColumn() & 0x1) == (this.getRow() & 0x1) ? this.lightColor : this.darkColor;
       }
+      Square.prototype.getPieceImage = function() {
+        piece = chessBoard.getPiece(this.index);
+        if (piece) {
+          return pieceNameToImage[piece.getName()]
+        }
+        return null;
+      }
       $scope.squares = []
       for (var i = 0; i < 64; i++) {
         $scope.squares.push(new Square(i));
       }
-      $scope.squares[0].piece = {imageURL: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/wk.png"}
-      $scope.squares[14].piece = {imageURL: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/bk.png"}
-      
+      chessBoard.listen(
+       $scope.$apply
+      )
     }
     return {
       restrict: 'E',
@@ -68,7 +83,7 @@ angular.module('chessBoard').directive('ngChessBoard', function () {
       scope: {
         square: "=square"
       },
-      template: '<img src="{{ square.piece.imageURL }}" style="width: 100%;" ng-hide="square.piece == null">',
+      template: '<img src="{{ square.getPieceImage() }}" style="width: 100%;" ng-hide="square.square.getPieceImage() == null">',
       link: function (scope, element, attrs) {
         element.draggable({zIndex: 999999})
         element.draggable({
