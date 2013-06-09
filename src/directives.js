@@ -2,13 +2,14 @@ pieceNameToImage = {
   k: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/wk.png",
   K: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/bk.png",
   p: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/wp.png",
-  P: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/bp.png"
+  P: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/bp.png",
+  r: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/wr.png",
+  R: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/br.png",
 }
 
 angular.module('chessBoard').directive('ngChessBoard', function () {
-    
     function chessBoardController($scope, $attrs, ChessBoard) {
-      chessBoard = new ChessBoard()
+      chessBoard = new ChessBoard();
       var Square = function (index) {
         this.index = index;
       }
@@ -55,7 +56,7 @@ angular.module('chessBoard').directive('ngChessBoard', function () {
     return {
       restrict: 'E',
       replace: true,
-      scope: {
+      OAscope: {
         square: "=square"
       },
       template: '<div style="width: {{ square.size }}px; height: {{ square.size }}px; background: {{ square.color() }}; position: absolute; left: {{ square.getXPosition() }}px; top: {{ square.getYPosition() }}px;"><ng-chess-piece square="square"></div>',
@@ -66,12 +67,9 @@ angular.module('chessBoard').directive('ngChessBoard', function () {
           },
           drop: function(event, ui) {
             piece_scope = angular.element(event.toElement || event.relatedTarget).scope()
-            if (piece_scope.square != scope.square) {
-              scope.square.piece = piece_scope.square.piece
-              piece_scope.square.piece = null
-              piece_scope.$apply()
-              scope.$apply()
-            }
+            chessBoard.makeMove(piece_scope.square.index, scope.square.index);
+            scope.$apply();
+            piece_scope.$apply();
           }
         })
       }
@@ -83,7 +81,7 @@ angular.module('chessBoard').directive('ngChessBoard', function () {
       scope: {
         square: "=square"
       },
-      template: '<img src="{{ square.getPieceImage() }}" style="width: 100%;" ng-hide="square.square.getPieceImage() == null">',
+      template: '<img src="{{ square.getPieceImage() }}" style="width: 100%;" ng-hide="square.getPieceImage() == null" >',
       link: function (scope, element, attrs) {
         element.draggable({zIndex: 999999})
         element.draggable({
