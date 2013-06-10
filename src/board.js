@@ -2,15 +2,6 @@ var WHITE = 1
 var NONE = 0
 var BLACK = -1
 
-var Piece = {
-  getName: function () {
-    if(this.color == BLACK) {
-      return this.letter.toUpperCase()
-    }
-    return this.letter
-  }
-}
-
 function King(color) {
   this.color = color;
 }
@@ -40,7 +31,13 @@ var pieces = {
 }
 
 for (pieceLetter in pieces) {
-  pieces[pieceLetter].prototype = Piece
+  function getName() {
+    if(this.color == BLACK) {
+      return this.letter.toUpperCase()
+    }
+    return this.letter
+  }
+  pieces[pieceLetter].prototype.getName = getName
   pieces[pieceLetter].prototype.letter = pieceLetter
 }
 
@@ -52,7 +49,7 @@ function ChessBoard() {
 ChessBoard.prototype.reset = function() {
   this.board = []
   this.moves = []
-  this.board.push.apply(this.board, this.majorPieceRowForColor(WHITE))
+  this.board.push.apply(this.board, this.majorPieceRowForColor(WHITE));
   for (var i = 0; i < 8; i++) {
     this.board.push(new Pawn(WHITE))
   }
@@ -62,7 +59,7 @@ ChessBoard.prototype.reset = function() {
   for (var i = 0; i < 8; i++) {
     this.board.push(new Pawn(BLACK))
   }
-  this.board.push.apply(this.board, this.majorPieceRowForColor(BLACK))
+  this.board.push.apply(this.board, this.majorPieceRowForColor(BLACK));
 }
 
 ChessBoard.prototype.majorPieceRowForColor = function(color) {
@@ -73,8 +70,8 @@ ChessBoard.prototype.majorPieceRowForColor = function(color) {
   	new Queen(color),
   	new King(color),
   	new Bishop(color),
-        new Knight(color),
-        new Rook(color)
+    new Knight(color),
+    new Rook(color)
   ];
 }
 
@@ -96,9 +93,10 @@ ChessBoard.prototype.makeMove = function(src, dst) {
   if (this.isLegalSquare(src) && this.isLegalSquare(dst)) {
     if (this.isLegalMove(src, dst)) {
       var taken_piece = this.board[dst];
-      this.board[dst] = this.board[src];
+      var taking_piece = this.board[src];
       this.board[src] = null;
-      moveEvent = {
+      this.board[dst] = taking_piece;
+      var moveEvent = {
         src: src,
         dst: dst,
         taken_piece: taken_piece
