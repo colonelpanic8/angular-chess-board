@@ -1,18 +1,20 @@
+// _ = require('underscore');
+
 var WHITE = 1;
 var NONE = 0;
 var BLACK = -1;
 
 // Square logic functions
 
-function indexFromRankFile(rankIndex, fileIndex) {
+function rawFromRankFile(rankIndex, fileIndex) {
   return rankIndex * 8 + fileIndex;
 }
 
-function rowFromIndex(squareIndex) {
+function rankFromRaw(squareIndex) {
   return (squareIndex & ~7) >> 3;
 }
 
-function fileFromIndex(squareIndex) {
+function fileFromRaw(squareIndex) {
   return squareIndex & 7;
 }
 
@@ -26,29 +28,31 @@ function isLegalSquare(rankIndex, fileIndex) {
 
 // Function conversion decorators
 
-function withRankFile(callable) {
+function rawToRankFile(callable) {
   return function(rankIndex, fileIndex) {
     if (isLegalSquare(rankIndex, fileIndex)) {
       args = Array.apply(undefined, arguments);
       args.splice(0, 2);
-      args.unshift(indexFromRankFile(rankIndex, fileIndex));
+      args.unshift(rawFromRankFile(rankIndex, fileIndex));
       return callable.apply(this, args);
     }
+    console.log(rankIndex);
+    console.log(fileIndex);
     throw "Illegal square provided.";
   }
 }
 
-function fromRankFile(callable) {
+function rankFileToRaw(callable) {
   return function(squareIndex) {
     args = Array.apply(undefined, arguments);
     args.splice(0, 1);
-    args.unshift(fileFromIndex(squareIndex));
-    args.unshift(rowFromIndex(squareIndex));
+    args.unshift(fileFromRaw(squareIndex));
+    args.unshift(rankFromRaw(squareIndex));
     return callable.apply(this, args);
   }
 }
 
-function withRankFileSrcDst(callable) {
+function rawToRankFileSrcDst(callable) {
   return function(srcRank, srcFile, dstRank, dstFile) {
     if (isLegalSquare(srcRank, srcFile) && isLegalSquare(dstRank, dstFile)) {
       args = Array.apply(undefined, arguments);
@@ -80,7 +84,7 @@ DirectionalIterator.prototype = {
   next: function() {
     this.rankIndex += this.rankDirection;
     this.fileIndex += this.fileDirection;
-    return indexFromRankFile(this.rankIndex, this.fileIndex);
+    return rawFromRankFile(this.rankIndex, this.fileIndex);
   }
 }
 
@@ -98,7 +102,7 @@ OneSquareIterator.prototype = {
   next: function() {
     if(!this.hasNext()) throw "No More Items";
     this.used = true;
-    return indexFromRankFile(this.rankIndex, this.fileIndex);
+    return rawFromRankFile(this.rankIndex, this.fileIndex);
   }
 }
 
@@ -120,14 +124,17 @@ var Piece = {
     return this.pieceCharacter;
   }
 };
+
 Piece.__defineGetter__('squareIndex', function () {
   return this.board.board.indexOf(this);
 });
+
 Piece.__defineGetter__('rankIndex', function () {
-  return rowFromIndex(this.squareIndex);
+  return rankFromRaw(this.squareIndex);
 });
+
 Piece.__defineGetter__('fileIndex', function () {
-  return fileFromIndex(this.squareIndex);
+  return fileFromRaw(this.squareIndex);
 });
 
 var SlidingPiece = Object.create(Piece);
@@ -174,12 +181,12 @@ King.prototype.findSpecialMoves = function (rankIndex, fileIndex, board) {
     _.map(_.range(5, 7), function(file) {
       return board.getPiece(backRank, file).color == NONE;
     })))
-    availableCastles.push(indexFromRankFile(backRank, 6));
+    availableCastles.push(rawFromRankFile(backRank, 6));
   if (board.canCastleQueenside(this.color) && _.all(
     _.map(_.range(1, 4), function(file) {
       return board.getPiece(backRank, file).color == NONE;
     })))
-    availableCastles.push(indexFromRankFile(backRank, 2));
+    availableCastles.push(rawFromRankFile(backRank, 2));
   return availableCastles;
 }
 
@@ -190,6 +197,7 @@ Pawn.prototype.enpassantSquares[BLACK] = 3;
 Pawn.prototype.moveIterators = function(rankIndex, fileIndex) {
   return [];
 };
+
 Pawn.prototype.findSpecialMoves = function(rankIndex, fileIndex, board) {
   var newRankIndex = rankIndex + this.color;
   var foundMoves = [];
@@ -198,30 +206,57 @@ Pawn.prototype.findSpecialMoves = function(rankIndex, fileIndex, board) {
     if(!isLegalSquare(newRankIndex, newFileIndex)) return;
     if(board.getPiece(newRankIndex, newFileIndex).color == this.color*(-1) || 
        this.isEnpassantAvailable(newRankIndex, newFileIndex, board))
-      foundMoves.push(indexFromRankFile(newRankIndex, newFileIndex));
+      foundMoves.push(rawFromRankFile(newRankIndex, newFileIndex));
   }, this);
   if(board.getPiece(newRankIndex, fileIndex).color == NONE)
-    foundMoves.push(indexFromRankFile(newRankIndex, fileIndex));
-  newRankIndex += 1;
+    foundMoves.push(rawFromRankFile(newRankIndex, fileIndex));
+  newRankIndex += this.color;
   if(rankIndex == backRankSquares[this.color] + this.color && board.getPiece(newRankIndex, fileIndex).color == NONE)
-    foundMoves.push(indexFromRankFile(newRankIndex, fileIndex));
+    foundMoves.push(rawFromRankFile(newRankIndex, fileIndex));
   return foundMoves;
 }
+
 Pawn.prototype.isEnpassantAvailable = function(rankIndex, fileIndex, board) {
   if(this.rankIndex != this.enpassantSquares[this.color]) return false;
   var lastMove = _.last(board.moves);
+  if(!lastMove) return false;
   return lastMove.piece instanceof Pawn &&
      lastMove.sourceFile == fileIndex &&
      lastMove.sourceRank == rankIndex + this.color &&
      lastMove.destRank == rankIndex - this.color;
 }
 
-var pieces = {k: King, q: Queen, r: Rook, b: Bishop, n: Knight, p: Pawn}
+var pieces = {k: King, q: Queen, r: Rook, b: Bishop, n: Knight, p: Pawn};
+var promotionPieces = [Queen, Rook, Bishop, Knight];
 
-function MoveInfo(sourceIndex, destIndex, promotion) {
+function Move(sourceIndex, destIndex, promotion) {
   this.sourceIndex = sourceIndex;
   this.destIndex = destIndex;
   this.promotion = promotion;
+}
+
+Move.prototype.__defineGetter__('sourceRank', function() {
+  return rankFromRaw(this.sourceIndex);
+});
+
+Move.prototype.__defineGetter__('sourceFile', function() {
+  return fileFromRaw(this.sourceIndex);
+});
+
+Move.prototype.__defineGetter__('destRank', function() {
+  return rankFromRaw(this.destIndex);
+});
+
+Move.prototype.__defineGetter__('destFile', function() {
+  return fileFromRaw(this.destIndex);
+});
+
+function buildMove(srcRank, srcFile, dstRank, dstFile, promotion) {
+  return new Move(
+  	rawFromRankFile(srcRank, srcFile),
+  	rawFromRankFile(dstRank, dstFile),
+  	promotion
+  );
 }
 
 function ChessBoard() {
@@ -242,8 +277,36 @@ ChessBoard.prototype.reset = function() {
   this.moves = []
 }
 
-ChessBoard.prototype.makeLegalMove = function(moveInfo) {
+ChessBoard.prototype.makeLegalMove = function(move) {
+  if(!this.isLegalMove(move.sourceIndex, move.destIndex)) 
+    throw "The provided move is not a legal move.";
+  var piece = this.getPieceRaw(move.sourceIndex);
+  var promotion = null;
+
+  // Ensure that a promotion was supplied if we are on a back rank.
+  if(piece instanceof Pawn && (move.destRank == 0 || move.destRank == 7)) {
+    if(promotionPieces.indexOf(move.promotion) < 0) throw "No promotion provided.";
+    promotion = new move.promotion(piece.color);
+  } else if(move.promotion) throw "Promotion not allowed for this move."
   
+  // Check for castles. We make the rook move, and let the normal
+  // move process handle making the king move.
+  if(piece instanceof King && move.sourceFile == 4) {
+    if(move.destinationFile == 6) 
+      this.makeMove(move.sourceRank, 7, move.sourceRank, 5);
+    if(move.destinationFile == 2)
+      this.makeMove(move.sourceRank, 0, move.sourceRank, 3);
+  }
+
+  // Handle clearing the passed enpassant piece.
+  if(piece instanceof Pawn && move.sourceFile != move.destFile &&
+     this.getPieceRaw(move.destIndex).color == NONE)
+    this.setPiece(move.destRank, move.sourceFile);
+  
+  _.extend(move, this.makeMoveRaw(move.sourceIndex, move.destIndex));
+  if(promotion) this.setPieceRaw(move.destIndex, promotion);
+  this.moves.push(move);
+  return move;
 }
 
 ChessBoard.prototype.__defineGetter__('action', function () {
@@ -260,18 +323,15 @@ ChessBoard.prototype.setPieceRaw = function(squareIndex, piece) {
 }
 
 ChessBoard.prototype.makeMoveRaw = function(sourceIndex, destIndex) {
-  var takenPiece = this.board[destIndex];
-  var takingPiece = this.board[sourceIndex];
+  var takenPiece = this.getPieceRaw(destIndex);
+  var piece = this.getPieceRaw(sourceIndex);
   this.setPieceRaw(sourceIndex, EmptySquare);
-  this.setPieceRaw(destIndex, takingPiece);
-  return {
-    sourceRank: (sourceIndex - sourceIndex % 8)/8,
-    sourceFile: sourceIndex % 8,
-    destRank: (destIndex - destIndex % 8)/8,
-    destFile: destIndex % 8,
-    takenPiece: takenPiece,
-    takingPiece: takingPiece
-  }
+  this.setPieceRaw(destIndex, piece);
+  return {piece: piece, takenPiece: takenPiece};
+}
+
+ChessBoard.prototype.isLegalMove = function(sourceIndex, destIndex) {
+  return !(this.getLegalMovesRaw(sourceIndex).indexOf(destIndex) < 0);
 }
 
 ChessBoard.prototype.getLegalMovesRaw = function(squareIndex) {
@@ -308,21 +368,21 @@ ChessBoard.prototype.filterMovesForKingSafety = function(startIndex, moves) {
   var piece = this.getPieceRaw(startIndex);
   var deltaBoard = new DeltaChessBoard(this);
   var backRankIndex = backRankSquares[piece.color];
-  var startRank = rowFromIndex(startIndex);
-  var startFile = fileFromIndex(startIndex);
+  var startRank = rankFromRaw(startIndex);
+  var startFile = fileFromRaw(startIndex);
 
   // Check for castling through check.
   if(piece instanceof King) {
-      if(startRank == backRankIndex && startFile == 4) {
-        var castleMoveIndex = movesToReturn.indexOf(indexFromRankFile(backRankIndex, 6));
-        if(castleMoveIndex < 0 && this.isSquareInFileRangeAlongRankThreatened(backRankIndex, 4, 6, piece)) {
-          movesToReturn.splice(castleMoveIndex, 1);
-        }
-        var castleMoveIndex = movesToReturn.indexOf(indexFromRankFile(backRankIndex, 2));
-        if(castleMoveIndex < 0 && this.isSquareInFileRangeAlongRankThreatened(backRankIndex, 2, 5, piece)) {
-          movesToReturn.splice(castleMoveIndex, 1);
-        }
+    if(startRank == backRankIndex && startFile == 4) {
+      var castleMoveIndex = movesToReturn.indexOf(rawFromRankFile(backRankIndex, 6));
+      if(!(castleMoveIndex < 0) && this.isSquareInFileRangeAlongRankThreatened(backRankIndex, 4, 6, piece)) {
+        movesToReturn.splice(castleMoveIndex, 1);
       }
+      var castleMoveIndex = movesToReturn.indexOf(rawFromRankFile(backRankIndex, 2));
+      if(!(castleMoveIndex < 0) && this.isSquareInFileRangeAlongRankThreatened(backRankIndex, 2, 5, piece)) {
+        movesToReturn.splice(castleMoveIndex, 1);
+      }
+    }
   } else {
     deltaBoard.setPieceRaw(startIndex);
     if(!this.isSquareThreatenedRaw(this.getKingPosition(piece.color))) {
@@ -343,16 +403,15 @@ ChessBoard.prototype.getKingPosition = function(color) {
 }
 
 ChessBoard.prototype.isKingThreatened = function(color) {
-  return this.isSquareThreatened(this.getKingPosition(color));
+  return this.isSquareThreatenedRaw(this.getKingPosition(color), color * -1);
 }
 
 ChessBoard.prototype.isSquareThreatenedRaw = function(squareIndex, byColor) {
-  for(var i = 0; i < 8; i++) {
-    for(var j = 0; j < 8; j++) {
-      if(this.getPiece(i, j).color == byColor) {
-        if(!this.getSquaresThreatenedBy(i, j).indexOf(squareIndex) < 0) {
-          return true;
-        }
+  if(typeof(byColor) === 'undefined') byColor = this.getPieceRaw(squareIndex).color * -1;
+  for(var i = 0; i < 64; i++) {
+    if(this.getPieceRaw(i).color == byColor) {
+      if(!(this.getMovesThreatenedByRaw(i).indexOf(squareIndex) < 0)) {
+        return true;
       }
     }
   }
@@ -368,19 +427,19 @@ ChessBoard.prototype.canCastleQueenside = function(color) {
 }
 
 ChessBoard.prototype.__defineGetter__('whiteCanCastleKingside', function () {
-  return !this.moveWasMadeFromSquares([indexFromRankFile(0, 4), indexFromRankFile(0, 7)]);
+  return !this.moveWasMadeFromSquares([rawFromRankFile(0, 4), rawFromRankFile(0, 7)]);
 });
 
 ChessBoard.prototype.__defineGetter__('whiteCanCastleQueenside', function () {
-  return !this.moveWasMadeFromSquares([indexFromRankFile(0, 4), indexFromRankFile(0, 0)]);
+  return !this.moveWasMadeFromSquares([rawFromRankFile(0, 4), rawFromRankFile(0, 0)]);
 });
 
 ChessBoard.prototype.__defineGetter__('blackCanCastleKingside', function () {
-  return !this.moveWasMadeFromSquares([indexFromRankFile(7, 4), indexFromRankFile(7, 7)]);
+  return !this.moveWasMadeFromSquares([rawFromRankFile(7, 4), rawFromRankFile(7, 7)]);
 });
 
 ChessBoard.prototype.__defineGetter__('blackCanCastleQueenside', function () {
-  return !this.moveWasMadeFromSquares([indexFromRankFile(7, 4), indexFromRankFile(7, 0)]);
+  return !this.moveWasMadeFromSquares([rawFromRankFile(7, 4), rawFromRankFile(7, 0)]);
 });
 
 // Condition functions
@@ -404,9 +463,9 @@ ChessBoard.prototype.isSquareInFileRangeAlongRankThreatened = function(rankIndex
 ChessBoard.prototype.horizontalBorder = "+-----------------+"
 
 ChessBoard.prototype.boardString = function() {
-  return this.horizontalBorder + _.reduce(_.map(_.range(0, 64, 8), function(startingIndex) {
+  return this.horizontalBorder + _.reduce(_.map(_.range(0, 64, 8), function(index) {
     return _.reduce(
-      this.board.slice(startingIndex, startingIndex+8),
+      this.board.slice(64 - (index + 8), 64 - index),
       function(stringThusFar, piece) {
         return stringThusFar + piece.getName() + " ";
       }, " ");
@@ -434,27 +493,27 @@ ChessBoard.prototype.majorPieceRowForColor = function(color) {
 
 // RankFile functions.
 
-ChessBoard.prototype.getLegalMoves = withRankFile(
+ChessBoard.prototype.getLegalMoves = rawToRankFile(
   ChessBoard.prototype.getLegalMovesRaw
 );
 
-ChessBoard.prototype.isSquareThreatened = withRankFile(
+ChessBoard.prototype.isSquareThreatened = rawToRankFile(
   ChessBoard.prototype.isSquareThreatenedRaw
 );
 
-ChessBoard.prototype.getPiece = withRankFile(
+ChessBoard.prototype.getPiece = rawToRankFile(
   ChessBoard.prototype.getPieceRaw
 );
 
-ChessBoard.prototype.setPiece = withRankFile(
+ChessBoard.prototype.setPiece = rawToRankFile(
   ChessBoard.prototype.setPieceRaw
 );
 
-ChessBoard.prototype.makeMove = withRankFileSrcDst(
+ChessBoard.prototype.makeMove = rawToRankFileSrcDst(
   ChessBoard.prototype.makeMoveRaw
 );
 
-ChessBoard.prototype.getMovesThreatenedByRaw = fromRankFile(
+ChessBoard.prototype.getMovesThreatenedByRaw = rankFileToRaw(
   ChessBoard.prototype.getMovesThreatenedBy
 );
 
@@ -473,13 +532,21 @@ DeltaBoardPrototype.getPieceRaw = function (squareIndex) {
   return this.parent.getPieceRaw(squareIndex);
 }
 
+DeltaBoardPrototype.getPiece = rawToRankFile(
+  DeltaBoardPrototype.getPieceRaw
+);
+
 DeltaBoardPrototype.setPieceRaw = function (squareIndex, piece) {
   if(typeof(piece) === 'undefined') piece = EmptySquare;
   this.deltas[squareIndex] = piece;
   if(piece instanceof King) this.setKingPosition(piece.color, squareIndex);
 }
 
-DeltaBoardPrototypegetKingPosition = function(color) {
+DeltaBoardPrototype.setPiece = rawToRankFile(
+  DeltaBoardPrototype.setPieceRaw
+);
+
+DeltaBoardPrototype.getKingPosition = function(color) {
   return (color == WHITE ? this.whiteKingPosition : this.blackKingPosition)
 }
 
@@ -497,11 +564,3 @@ function DeltaChessBoard(parent) {
 }
 
 DeltaChessBoard.prototype = DeltaBoardPrototype;
-
-cb = new ChessBoard();
-console.log(cb.getLegalMoves(0, 1));
-debugger;
-
-angular.module('chessBoard').factory('ChessBoard', function () {
-  return ChessBoard
-});
