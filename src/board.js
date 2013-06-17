@@ -1,5 +1,3 @@
-// _ = require('underscore');
-
 var WHITE = 1;
 var NONE = 0;
 var BLACK = -1;
@@ -250,6 +248,12 @@ Move.prototype.__defineGetter__('destRank', function() {
 Move.prototype.__defineGetter__('destFile', function() {
   return fileFromRaw(this.destIndex);
 });
+
+Move.prototype.equals = function(move) {
+  return this.sourceIndex == move.sourceIndex &&
+    this.destIndex == move.destIndex &&
+    this.promotion == move.promotion;
+}
 
 function buildMove(srcRank, srcFile, dstRank, dstFile, promotion) {
   return new Move(
