@@ -276,6 +276,7 @@ ChessBoard.prototype.reset = function() {
     _.map(_.range(8), function(index) {return new Pawn(BLACK, this)}, this),
     this.majorPieceRowForColor(BLACK)
   ]);
+  this.startingAction = WHITE;
   this.whiteKing = this.getPiece(0, 4);
   this.blackKing = this.getPiece(7, 4);
   this.moves = []
@@ -314,7 +315,7 @@ ChessBoard.prototype.makeLegalMove = function(move) {
 }
 
 ChessBoard.prototype.__defineGetter__('action', function () {
-  return this.moves.length & 1 ? BLACK : WHITE;
+  return this.moves.length & 1 ? this.startingAction * -1 : this.startingAction;
 });
 
 ChessBoard.prototype.getPieceRaw = function(squareIndex) {
