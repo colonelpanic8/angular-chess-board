@@ -24,7 +24,6 @@ describe("ChessBoard", function() {
 
   beforeEach(function() {
     chessBoard = new ChessBoard();
-    clearChessBoard(chessBoard);
   });
 
   it("should not allow placing the king in check", function() {
@@ -34,6 +33,12 @@ describe("ChessBoard", function() {
     chessBoard.makeLegalMove(buildMove(4, 3, 3, 4));
     chessBoard.makeLegalMove(buildMove(1, 4, 2, 4));
     chessBoard.makeLegalMove(buildMove(7, 3, 2, 3));
+  });
+
+  describe("Empty ChessBoard", function() {
+    beforeEach(function() {
+      clearChessBoard(chessBoard);
+    });
   });
 
   // it("handles en passant", function() {
