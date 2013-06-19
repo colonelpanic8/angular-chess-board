@@ -53,7 +53,7 @@ NotationProcessor.prototype = {
     } else {
       var sourceFile = null;
       var sourceRank = null;
-      var pieceType = algebraicMove[0];
+      var pieceType = pieces[algebraicMove[0].toLowerCase()];
       var disambiguation = algebraicMove.slice(1, -2).replace('x', '');
       var destination = squareNameToIndex(algebraicMove.slice(-2));
 
