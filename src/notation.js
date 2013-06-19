@@ -17,6 +17,18 @@ function rankToIndex(rankChar) {
   return parseInt(rankChar) - 1;
 }
 
+function indexToSquareName(squareIndex) {
+  return fileIndexToFile(fileFromRaw(squareIndex)) + rankIndexToRank(rankFromRaw(squareIndex));
+}
+
+function fileIndexToFile(fileIndex) {
+  return String.fromCharCode(fileIndex + 97);
+}
+
+function rankIndexToRank(rankIndex) {
+  return (rankIndex + 1).toString()
+}
+
 function NotationProcessor(chessBoard) {
   this.board = chessBoard;
 }
@@ -48,30 +60,30 @@ NotationProcessor.prototype = {
       return buildMove(backRankIndex, 4, backRankIndex, 2);
     }
  
-    if(algebraicMove[0].isLower()) {
-      return this.parsePawnMove(algebraicMove);
-    } else {
-      var sourceFile = null;
-      var sourceRank = null;
-      var pieceType = pieces[algebraicMove[0].toLowerCase()];
-      var disambiguation = algebraicMove.slice(1, -2).replace('x', '');
-      var destination = squareNameToIndex(algebraicMove.slice(-2));
+    if(algebraicMove[0].isLower()) return this.parsePawnMove(algebraicMove);
+      
+    var sourceFile = null;
+    var sourceRank = null;
+    var pieceType = pieces[algebraicMove[0].toLowerCase()];
+    var disambiguation = algebraicMove.slice(1, -2).replace('x', '');
+    var destination = squareNameToIndex(algebraicMove.slice(-2));
 
-      if(disambiguation) {
-        if(disambiguation.length > 2) throw "Invalid notation";
-        if(disambiguation.length == 2)
-          return new Move(squareNameToIndex(disambiguation), destination);
-        else {
-          sourceRank = rankToIndex(disambiguation);
-          if(sourceRank == NaN) {
-            sourceRank = null;
-            sourceFile = fileToIndex(disambiguation);
-          }
+    if(disambiguation) {
+      if(disambiguation.length > 2) throw "Invalid notation";
+      if(disambiguation.length == 2)
+        return new Move(squareNameToIndex(disambiguation), destination);
+      else {
+        sourceRank = rankToIndex(disambiguation);
+        if(sourceRank == NaN) {
+          sourceRank = null;
+          sourceFile = fileToIndex(disambiguation);
         }
       }
-
-      
     }
+    var source = pieceType.find(this.board, destination, sourceRank, sourceFile);
+    if(!source) return;
+
+    return new Move(source, destination);
   },
   parsePawnMove: function(algebraicMove) {
     algebraicMove = algebraicMove.replace("e.p.", "");

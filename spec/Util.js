@@ -22,6 +22,16 @@ function formatMove(move) {
   return baseString;
 }
 
+function assertMovesListEqual(rawMovesList, rankFileMovesList) {
+  var left = rawMovesList.sort()
+  var right = _.map(rankFileMovesList, function(rankFile) {
+    return rankFileToRaw(rankFile[0], rankFile[1]);
+  }).sort()
+  _.each(_.zip(left, right), function(squareIndices) {
+    expect(squareIndices[0]).toBe(squareIndices[1]);
+  });
+}
+
 function setupChessBoardAndMatchers() {
   this.chessBoard = new ChessBoard();
   this.notationProcessor = new NotationProcessor(this.chessBoard);
@@ -57,6 +67,18 @@ function setupChessBoardAndMatchers() {
     },
     toBeRankFile: function(rankIndex, fileIndex) {
       return this.actual == rawFromRankFile(rankIndex, fileIndex);
+    }
+  });
+  this.addMatchers({
+    toBeRankFile: function(rankIndex, fileIndex) {
+      return this.actual == rawFromRankFile(rankIndex, fileIndex);
+    },
+    toBeAlgebraic: function(algebraicMove) {
+      this.message = function() {
+        return "Expected (" + this.actual.toString() + ", " + indexToSquareName(this.actual) +
+          ") to be (" + squareNameToIndex(algebraicMove) + ", " + algebraicMove + ")";
+      }
+      return this.actual == squareNameToIndex(algebraicMove);
     }
   });
 }
