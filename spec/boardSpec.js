@@ -39,6 +39,15 @@ describe("ChessBoard", function() {
     beforeEach(function() {
       clearChessBoard(chessBoard);
     });
+
+    it("Finds kings", function() {
+      King.find(chessBoard, rawFromRankFile(1, 4));
+    });
+
+    it("Finds knights", function() {
+      
+      Knight.find(chessBoard, )
+    });
   });
 
   // it("handles en passant", function() {

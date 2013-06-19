@@ -123,6 +123,13 @@ var Piece = {
   }
 };
 
+Piece.find = function(chessBoard, destination, sourceRank, sourceFile) {
+  var directions = this.directions;
+  if(sourceRank) {
+    
+  }
+}
+
 Piece.__defineGetter__('squareIndex', function () {
   return this.board.board.indexOf(this);
 });
@@ -136,10 +143,15 @@ Piece.__defineGetter__('fileIndex', function () {
 });
 
 var SlidingPiece = Object.create(Piece);
+
 SlidingPiece.moveIterators = function(rankIndex, fileIndex) {
   return _.map(this.directions, function(direction) {
     return new DirectionalIterator(rankIndex, fileIndex, direction[0], direction[1]);
   });
+}
+
+SlidingPiece.find = function() {
+  
 }
 
 var EmptySquare = Object.create(Piece);
@@ -189,7 +201,7 @@ King.prototype.findSpecialMoves = function (rankIndex, fileIndex, board) {
 }
 
 var Pawn = buildPieceType([1, 0], Piece, 'p');
-Pawn.prototype.enpassantSquares = {}
+Pawn.prototype.enpassantSquares = {};
 Pawn.prototype.enpassantSquares[WHITE] = 4;
 Pawn.prototype.enpassantSquares[BLACK] = 3;
 Pawn.prototype.moveIterators = function(rankIndex, fileIndex) {
