@@ -123,11 +123,23 @@ var Piece = {
   }
 };
 
-Piece.find = function(chessBoard, destination, sourceRank, sourceFile) {
-  var directions = this.directions;
-  if(sourceRank) {
-    
-  }
+Piece.find = function(chessBoard, destination, sourceRank, sourceFile, color) {
+  var destRank = rankFromRaw(destination);
+  var destFile = fileFromRaw(destination);
+  var rankDelta = !isNaN(parseInt(sourceRank)) ? sourceRank - destRank : null;
+  var fileDelta = !isNaN(parseInt(sourceFile)) ? sourceFile - destFile : null;
+  var sourceRank, sourceFile;
+  color = color ? color : chessBoard.action;
+  var direction = _.find(this.directions, function(direction) {
+    if(!(rankDelta === null) && direction[0] != rankDelta) return false;
+    if(!(fileDelta === null) && direction[1] != fileDelta) return false;
+    sourceRank = destRank + direction[0];
+    sourceFile = destFile + direction[1];
+    if(!isLegalSquare(sourceRank, sourceFile)) return false;
+    var foundPiece = chessBoard.getPiece(sourceRank, sourceFile);
+    return foundPiece.pieceCharacter == this.pieceCharacter && foundPiece.color == color;
+  }, this);
+  if(direction) return rawFromRankFile(sourceRank, sourceFile);
 }
 
 Piece.__defineGetter__('squareIndex', function () {
@@ -150,7 +162,12 @@ SlidingPiece.moveIterators = function(rankIndex, fileIndex) {
   });
 }
 
-SlidingPiece.find = function() {
+SlidingPiece.find = function(chessBoard, destination, sourceRank, sourceFile) {
+  var destRank = rankFromRaw(destination);
+  var destFile = fileFromRaw(destination);
+  var rankDelta = !isNaN(parseInt(sourceRank)) ? sourceRank - destRank : null;
+  var fileDelta = !isNaN(parseInt(sourceFile)) ? sourceFile - destFile : null;
+  var sourceRank, sourceFile;
   
 }
 
@@ -166,6 +183,7 @@ function buildPieceType(directions, prototype, pieceCharacter) {
   PieceType.prototype = Object.create(prototype);
   PieceType.prototype.directions = directions
   PieceType.prototype.pieceCharacter = pieceCharacter;
+  PieceType.find = prototype.find.bind(PieceType.prototype);
   return PieceType;
 }
 
