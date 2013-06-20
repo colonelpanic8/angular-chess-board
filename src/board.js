@@ -57,8 +57,8 @@ function rawToRankFileSrcDst(callable) {
     if (isLegalSquare(srcRank, srcFile) && isLegalSquare(dstRank, dstFile)) {
       args = Array.apply(undefined, arguments);
       args.splice(0, 4);
-      args.unshift(srcRank * 8 + srcFile);
       args.unshift(dstRank * 8 + dstFile);
+      args.unshift(srcRank * 8 + srcFile);
       return callable.apply(this, args);
     }
     throw "Illegal square provided.";
@@ -207,8 +207,10 @@ SlidingPiece.find = function(chessBoard, destination, sourceRank, sourceFile, co
     function(moveIterator) {
       while(moveIterator.hasNext()) {
         sourceIndex = moveIterator.next();
-        if(this.isOfColor(chessBoard.getPieceRaw(sourceIndex), color))
+        var piece = chessBoard.getPieceRaw(sourceIndex);
+        if(this.isOfColor(piece, color))
           return true;
+        if(piece.color != NONE) return false;
       }
     return false;
     }, this
@@ -402,9 +404,10 @@ ChessBoard.prototype.makeLegalMove = function(move) {
   // Check for castles. We make the rook move, and let the normal
   // move process handle making the king move.
   if(piece instanceof King && move.sourceFile == 4) {
-    if(move.destinationFile == 6) 
+    if(move.destFile == 6) {
       this.makeMove(move.sourceRank, 7, move.sourceRank, 5);
-    if(move.destinationFile == 2)
+    }
+    if(move.destFile == 2)
       this.makeMove(move.sourceRank, 0, move.sourceRank, 3);
   }
 

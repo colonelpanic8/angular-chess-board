@@ -82,8 +82,7 @@ NotationProcessor.prototype = {
       }
     }
     var source = pieceType.find(this.board, destination, sourceRank, sourceFile);
-    if(!source) return;
-
+    if(!_.isNumber(source)) return;
     return new Move(source, destination);
   },
   parsePawnMove: function(algebraicMove) {
