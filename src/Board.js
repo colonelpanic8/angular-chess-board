@@ -173,6 +173,10 @@ var Piece = {
   }
 };
 
+Piece.__defineGetter__('movePrefix', function () {
+  return this.pieceCharacter.toUpperCase();
+});
+
 Piece.__defineGetter__('squareIndex', function () {
   return this.board.board.indexOf(this);
 });
@@ -374,6 +378,12 @@ Pawn.prototype.isEnpassantAvailable = function(rankIndex, fileIndex, board) {
      lastMove.destRank == rankIndex - this.color;
 }
 
+Pawn.prototype.buildDisambiguation = function(chessBoard, move) {
+  return move.sourceFile != move.destFile ? fileIndexToFile(move.sourceFile) : "";
+}
+
+Pawn.prototype.__defineGetter__('movePrefix', function() { return '' });
+
 var pieces = {k: King, q: Queen, r: Rook, b: Bishop, n: Knight, p: Pawn};
 var promotionPieces = [Queen, Rook, Bishop, Knight];
 
@@ -390,7 +400,11 @@ function Move(sourceIndex, destIndex, chessBoard, promotion) {
 
 Move.prototype.getCheck = function(chessBoard) {
   var deltaBoard = new DeltaChessBoard(chessBoard);
+  try {
+    deltaBoard.makeLegalMove(this);
+  } catch (err){debugger;}
   if(deltaBoard.isKingThreatened(this.piece.color * -1)) return '+';
+  return '';
 }
 
 Move.prototype.__defineGetter__('sourceRank', function() {
@@ -415,6 +429,14 @@ Move.prototype.__defineGetter__('algebraicSource', function() {
 
 Move.prototype.__defineGetter__('algebraicDest', function() {
   return indexToSquareName(this.destIndex);
+});
+
+Move.prototype.__defineGetter__('takeString', function() {
+  return this.takenPiece.color == NONE ? "" : "x";
+});
+
+Move.prototype.__defineGetter__('promotionString', function() {
+  return this.promotion ? "=" + this.promotion.prototype.movePrefix : "";
 });
 
 Move.prototype.__defineGetter__('algebraic', function() {
@@ -645,13 +667,17 @@ ChessBoard.prototype.horizontalBorder = "+-----------------+"
 ChessBoard.prototype.boardString = function() {
   return this.horizontalBorder + _.reduce(_.map(_.range(0, 64, 8), function(index) {
     return _.reduce(
-      this.board.slice(64 - (index + 8), 64 - index),
+      this.slice(64 - (index + 8), 64 - index),
       function(stringThusFar, piece) {
         return stringThusFar + piece.getName() + " ";
       }, " ");
   }.bind(this)), function (stringThusFar, rowString) {
     return stringThusFar + "|" + rowString + "|\n";
   }, "\n") + this.horizontalBorder;
+}
+
+ChessBoard.prototype.slice = function() {
+  return this.board.slice.apply(this.board, arguments);
 }
 
 ChessBoard.prototype.listen = function(callable) {
@@ -705,6 +731,8 @@ DeltaBoardPrototype.resetToParent = function() {
   this.whiteKingPosition = this.parent.getKingPosition(WHITE);
   this.blackKingPosition = this.parent.getKingPosition(BLACK);
   this.deltas = {};
+  this.moves = [];
+  this.startingAction = this.parent.action;
 }
 
 DeltaBoardPrototype.getPieceRaw = function (squareIndex) {
@@ -725,6 +753,12 @@ DeltaBoardPrototype.setPieceRaw = function (squareIndex, piece) {
 DeltaBoardPrototype.setPiece = rawToRankFile(
   DeltaBoardPrototype.setPieceRaw
 );
+
+DeltaChessBoard.slice = function(start, end) {
+  return _.map(_.range(start, end), function(index) {
+    return this.getPieceRaw(index);
+  }, this);
+}
 
 DeltaBoardPrototype.getKingPosition = function(color) {
   return (color == WHITE ? this.whiteKingPosition : this.blackKingPosition)
