@@ -126,22 +126,33 @@ var Piece = {
   isOfColor: function(piece, color) {
     return piece.pieceCharacter == this.pieceCharacter && piece.color == color;
   },
-  find: function(chessBoard, destination, sourceRank, sourceFile, color) {
+  find: function(chessBoard, destination, sourceRank, sourceFile, color, findAll) {
     var destRank = rankFromRaw(destination);
     var destFile = fileFromRaw(destination);
     var rankDelta = _.isNumber(sourceRank) ? sourceRank - destRank : null;
     var fileDelta = _.isNumber(sourceFile) ? sourceFile - destFile : null;
     var testRank, testFile;
     color = color ? color : chessBoard.action;
-    var somethingWasFound = _.any(this.directions, function(direction) {
+    function directionMatches(direction) {
       if(!(rankDelta === null) && direction[0] != rankDelta) return false;
       if(!(fileDelta === null) && direction[1] != fileDelta) return false;
       testRank = destRank + direction[0];
       testFile = destFile + direction[1];
       if(!isLegalSquare(testRank, testFile)) return false;
       return this.isOfColor(chessBoard.getPiece(testRank, testFile), color);
-    }, this);
-    if(somethingWasFound) return rawFromRankFile(testRank, testFile);
+    }
+    directionMatches = directionMatches.bind(this);
+    if(findAll) {
+      var squareIndices = [];
+      _.each(this.directions, function(direction) {
+        if(directionMatches(direction))
+          squareIndices.push(rawFromRankFile(testRank, testFile));
+      });
+      return squareIndices;
+    } else {
+      var somethingWasFound = _.any(this.directions, directionMatches, this);
+      if(somethingWasFound) return rawFromRankFile(testRank, testFile);
+    }
   }
 };
 
@@ -191,7 +202,7 @@ SlidingPiece.moveIteratorsMatching = function(destRank, destFile, sourceRank, so
   return moveIterators;
 }
 
-SlidingPiece.find = function(chessBoard, destination, sourceRank, sourceFile, color) {
+SlidingPiece.find = function(chessBoard, destination, sourceRank, sourceFile, color, findAll) {
   var destRank = rankFromRaw(destination);
   var destFile = fileFromRaw(destination);
 
@@ -202,18 +213,31 @@ SlidingPiece.find = function(chessBoard, destination, sourceRank, sourceFile, co
 
   var sourceIndex = null;
   color = color ? color : chessBoard.action;
+
+  function findFromMoveIterator(moveIterator) {
+    while(moveIterator.hasNext()) {
+      sourceIndex = moveIterator.next();
+      var piece = chessBoard.getPieceRaw(sourceIndex);
+      if(this.isOfColor(piece, color))
+        return true;
+      if(piece.color != NONE) return false;
+    }
+    return false;
+  }
+  findFromMoveIterator = findFromMoveIterator.bind(this);
+
+  if(findAll) {
+    var squareIndices = [];
+    _.each(
+      this.moveIteratorsMatching(destRank, destFile, sourceRank, sourceFile),
+      function(moveIterator) {
+        if(findFromMoveIterator(moveIterator)) squareIndices.push(sourceIndex);
+      }, this);
+    return squareIndices;
+  } 
   var somethingWasFound = _.any(
     this.moveIteratorsMatching(destRank, destFile, sourceRank, sourceFile),
-    function(moveIterator) {
-      while(moveIterator.hasNext()) {
-        sourceIndex = moveIterator.next();
-        var piece = chessBoard.getPieceRaw(sourceIndex);
-        if(this.isOfColor(piece, color))
-          return true;
-        if(piece.color != NONE) return false;
-      }
-    return false;
-    }, this
+    findFromMoveIterator, this
   );
   if(somethingWasFound) return sourceIndex;
 }

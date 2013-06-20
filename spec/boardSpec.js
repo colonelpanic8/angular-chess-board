@@ -79,10 +79,25 @@ describe("ChessBoard", function() {
 
     it("moves the rook when castling", function() {
       this.setPiece('h1', Rook, WHITE);
-      console.log(this.chessBoard.boardString());
       this.chessBoard.makeLegalMove(this.notationProcessor.parseAlgebraicMove('O-O'));
-      console.log(this.chessBoard.boardString());
       expect(this.chessBoard.getPiece(0, 5).getName()).toBe('r');
+    });
+
+    it("finds multiple sliding pieces", function() {
+      this.setPiece('c1', Rook, WHITE);
+      this.setPiece('a4', Rook, WHITE);
+
+      expect(Rook.find(this.chessBoard, squareNameToIndex('a1'), null, null, null, true))
+        .toBeAlgebraics(['c1', 'a4']);
+    });
+
+    it("finds multiple pieces", function() {
+      this.setPiece('c3', Knight, WHITE);
+      this.setPiece('c5', Knight, WHITE);
+      this.setPiece('b2', Knight, WHITE);
+      
+     expect(Knight.find(this.chessBoard, squareNameToIndex('a4'), null, null, null, true))
+        .toBeAlgebraics(['c3', 'c5', 'b2']); 
     });
   });
 
