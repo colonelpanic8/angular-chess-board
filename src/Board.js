@@ -402,7 +402,7 @@ Move.prototype.getCheck = function(chessBoard) {
   var deltaBoard = new DeltaChessBoard(chessBoard);
   try {
     deltaBoard.makeLegalMove(this);
-  } catch (err){debugger;}
+  } catch(err) {} // We do this because some tests need this behavior.
   if(deltaBoard.isKingThreatened(this.piece.color * -1)) return '+';
   return '';
 }
@@ -440,6 +440,13 @@ Move.prototype.__defineGetter__('promotionString', function() {
 });
 
 Move.prototype.__defineGetter__('algebraic', function() {
+  if(this.piece instanceof King && this.sourceFile == 4) {
+    if(this.destFile == 6) {
+      return 'O-O';
+    }
+    if(this.destFile == 2)
+      return 'O-O-O';
+  }
   return this.piece.movePrefix + this.disambiguation + 
     this.takeString + this.algebraicDest +
     this.promotionString + this.checkString;
