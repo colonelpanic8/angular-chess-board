@@ -12,6 +12,10 @@ function setPiece(algebraicName, pieceConstructor, color) {
   )
 }
 
+function getPiece(algebraicName) {
+  return this.chessBoard.getPieceRaw(squareNameToIndex(algebraicName));
+}
+
 function formatMove(move) {
   if(!move) return "null";
   var baseString =  "(" + move.sourceRank.toString() + ", " + move.sourceFile.toString() + 
@@ -36,12 +40,13 @@ function setupChessBoardAndMatchers() {
   this.chessBoard = new ChessBoard();
   this.notationProcessor = new NotationProcessor(this.chessBoard);
   this.setPiece = setPiece;
+  this.getPiece = getPiece;
   this.clearChessBoard = clearChessBoard;
 
   var that = this;
   function toBeParsedAsRaw(sourceIndex, destinationIndex, promotion) {
     var move = that.notationProcessor.parseAlgebraicMove(this.actual);
-    var expectedMove = new Move(sourceIndex, destinationIndex, promotion);
+    var expectedMove = new Move(sourceIndex, destinationIndex, that.chessBoard, promotion);
     this.message = function() {
       return "Expected " +  this.actual + " to be parsed as " + formatMove(expectedMove) +
         ", but actual move was " + formatMove(move);

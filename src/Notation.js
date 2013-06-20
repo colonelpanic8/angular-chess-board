@@ -83,7 +83,7 @@ NotationProcessor.prototype = {
     }
     var source = pieceType.find(this.board, destination, sourceRank, sourceFile);
     if(!_.isNumber(source)) return;
-    return new Move(source, destination);
+    return new Move(source, destination, this.board);
   },
   parsePawnMove: function(algebraicMove) {
     algebraicMove = algebraicMove.replace("e.p.", "");
@@ -114,7 +114,7 @@ NotationProcessor.prototype = {
     } else {
       sourceIndex = rawFromRankFile(destinationRank - this.board.action, destinationFile);
     }
-    return new Move(sourceIndex, destinationIndex, promotion);
+    return new Move(sourceIndex, destinationIndex, this.board, promotion);
   },
   buildMoveFromSquareNames: function(source, dest, promotion) {
     

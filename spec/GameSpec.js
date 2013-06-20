@@ -8,7 +8,7 @@ describe("Chess Game", function() {
     _.each(_.map(moves, function(move) {
       return chessGame.makeMoveFromAlgebraic(move);
     }), function(move, index) {
-      //expect(move.algebraic).toBe(moves[index]);
+      expect(move.algebraic).toBe(moves[index]);
     });
   });
 });

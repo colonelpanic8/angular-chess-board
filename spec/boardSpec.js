@@ -99,6 +99,16 @@ describe("ChessBoard", function() {
      expect(Knight.find(this.chessBoard, squareNameToIndex('a4'), null, null, null, true))
         .toBeAlgebraics(['c3', 'c5', 'b2']); 
     });
+
+    it("finds queens in many directions", function() {
+      this.setPiece('a1', Queen, WHITE);
+      this.setPiece('d4', Queen, WHITE);
+      this.setPiece('c4', Queen, WHITE);
+      this.setPiece('a3', Queen, WHITE);
+
+      expect(Queen.findAll(this.chessBoard, squareNameToIndex('c3'))).
+        toBeAlgebraics(['a1', 'd4', 'c4', 'a3']);
+    });
   });
 
 });

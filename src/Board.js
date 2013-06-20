@@ -153,6 +153,23 @@ var Piece = {
       var somethingWasFound = _.any(this.directions, directionMatches, this);
       if(somethingWasFound) return rawFromRankFile(testRank, testFile);
     }
+  },
+  findAll: function(chessBoard, destination, sourceRank, sourceFile, color) {
+    return this.find(chessBoard, destination, sourceRank, sourceFile, color, true);
+  },
+  buildDisambiguation: function(chessBoard, move) {
+    var oneInSameRank = false;
+    var oneInSameFile = false;
+    var foundIndices = this.findAll(chessBoard, move.destIndex, null, null, this.color)
+    if(foundIndices.length < 2) return '';
+    _.each(foundIndices, function(squareIndex) {
+      if(squareIndex == move.sourceIndex) return;
+      if(rankFromRaw(squareIndex) == move.sourceRank) oneInSameRank = true;
+      if(fileFromRaw(squareIndex) == move.sourceFile) oneInSameFile = true;
+    });
+    if(oneInSameRank && oneInSameFile) return indexToSquareName(move.sourceIndex);
+    if(!oneInSameFile) return fileIndexToFile(move.sourceFile);
+    return rankIndexToRank(move.sourceRank);
   }
 };
 
@@ -267,6 +284,7 @@ SlidingPiece.findSimple = function(chessBoard, destination, sourceRank, sourceFi
   var somethingWasFound = _.any(directions, function(direction) {
     testRank = destRank + direction[0] * magnitude;
     testFile = destFile + direction[1] * magnitude;
+    if(!isLegalSquare(testRank, testFile)) return false;
     return this.isOfColor(chessBoard.getPiece(testRank, testFile), color);
   }, this);
   if(somethingWasFound) return rawFromRankFile(testRank, testFile);
@@ -285,6 +303,7 @@ function buildPieceType(directions, prototype, pieceCharacter) {
   PieceType.prototype.directions = directions
   PieceType.prototype.pieceCharacter = pieceCharacter;
   PieceType.find = prototype.find.bind(PieceType.prototype);
+  PieceType.findAll = prototype.findAll.bind(PieceType.prototype);
   return PieceType;
 }
 
@@ -358,10 +377,20 @@ Pawn.prototype.isEnpassantAvailable = function(rankIndex, fileIndex, board) {
 var pieces = {k: King, q: Queen, r: Rook, b: Bishop, n: Knight, p: Pawn};
 var promotionPieces = [Queen, Rook, Bishop, Knight];
 
-function Move(sourceIndex, destIndex, promotion) {
+function Move(sourceIndex, destIndex, chessBoard, promotion) {
   this.sourceIndex = sourceIndex;
   this.destIndex = destIndex;
   this.promotion = promotion;
+  if(!chessBoard) return;
+  this.piece = chessBoard.getPieceRaw(sourceIndex);
+  this.takenPiece = chessBoard.getPieceRaw(destIndex);
+  this.disambiguation = this.piece.buildDisambiguation(chessBoard, this);
+  this.checkString = this.getCheck(chessBoard);
+}
+
+Move.prototype.getCheck = function(chessBoard) {
+  var deltaBoard = new DeltaChessBoard(chessBoard);
+  if(deltaBoard.isKingThreatened(this.piece.color * -1)) return '+';
 }
 
 Move.prototype.__defineGetter__('sourceRank', function() {
@@ -380,6 +409,20 @@ Move.prototype.__defineGetter__('destFile', function() {
   return fileFromRaw(this.destIndex);
 });
 
+Move.prototype.__defineGetter__('algebraicSource', function() {
+  return indexToSquareName(this.sourceIndex);
+});
+
+Move.prototype.__defineGetter__('algebraicDest', function() {
+  return indexToSquareName(this.destIndex);
+});
+
+Move.prototype.__defineGetter__('algebraic', function() {
+  return this.piece.movePrefix + this.disambiguation + 
+    this.takeString + this.algebraicDest +
+    this.promotionString + this.checkString;
+});
+
 Move.prototype.equals = function(move) {
   return this.sourceIndex == move.sourceIndex &&
     this.destIndex == move.destIndex &&
@@ -388,9 +431,9 @@ Move.prototype.equals = function(move) {
 
 function buildMove(srcRank, srcFile, dstRank, dstFile, promotion) {
   return new Move(
-  	rawFromRankFile(srcRank, srcFile),
-  	rawFromRankFile(dstRank, dstFile),
-  	promotion
+    rawFromRankFile(srcRank, srcFile),
+    rawFromRankFile(dstRank, dstFile),
+    promotion
   );
 }
 
