@@ -2,7 +2,7 @@ describe("NotationProcessor", function() {
   beforeEach(setupChessBoardAndMatchers);
   beforeEach(clearChessBoard);
 
-  it("Converts algebraic notation into indices", function() {
+  it("converts algebraic notation into indices", function() {
     expect(squareNameToIndex('e4')).toBeRankFile(3, 4);
     expect(squareNameToIndex('a8')).toBeRankFile(7, 0);
     expect(squareNameToIndex('a1')).toBeRankFile(0, 0);
@@ -10,14 +10,14 @@ describe("NotationProcessor", function() {
   });
   
   
-  it("Handles basic pawn moves", function() {
+  it("handles basic pawn moves", function() {
     this.setPiece('f7', Pawn, BLACK);
     this.setPiece('e6', Pawn, WHITE);
     expect('exf7+').toBeParsedAs(5, 4, 6, 5);
     expect('exf7#').toBeParsedAs(5, 4, 6, 5);
   });
 
-  it("Handles initial double pawn move", function() {
+  it("handles initial double pawn move", function() {
     this.setPiece('e2', Pawn, WHITE);
     expect('e4').toBeParsedAs(1, 4, 3, 4);
 
@@ -26,7 +26,7 @@ describe("NotationProcessor", function() {
     expect('exd4').toBeParsedAs(2, 4, 3, 3);
   });
 
-  it("Chooses the appropriate piece given the current action", function() {
+  it("chooses the appropriate piece given the current action", function() {
     this.setPiece('e3', Pawn, WHITE);
     expect('e4').toBeParsedAs(2, 4, 3, 4);
     expect('exd4').toBeParsedAs(2, 4, 3, 3);
@@ -38,7 +38,7 @@ describe("NotationProcessor", function() {
     expect('exd4').toBeParsedAs(4, 4, 3, 3);
   });
 
-  it("Supports castling", function() {
+  it("supports castling", function() {
     expect('O-O').toBeParsedAs(0, 4, 0, 6);
 	expect('O-O-O').toBeParsedAs(0, 4, 0, 2)
     
@@ -47,7 +47,7 @@ describe("NotationProcessor", function() {
 	expect('O-O-O').toBeParsedAs(7, 4, 7, 2)
   });
 
-  it("Handles promotion", function() {
+  it("handles promotion", function() {
     this.setPiece('a7', Pawn, WHITE);
     expect('a8=Q+').toBeParsedAs(6, 0, 7, 0, Queen);
 
@@ -56,11 +56,11 @@ describe("NotationProcessor", function() {
     expect('a1=R').toBeParsedAs(1, 0, 0, 0, Rook);
   });
 
-  it("Handles moves with both rank and file disambiguation", function() {
+  it("handles moves with both rank and file disambiguation", function() {
     expect('Qa4xa5').toBeParsedAs(3, 0, 4, 0);
   });
 
-  it("Handles bishop moves", function() {
+  it("handles bishop moves", function() {
     this.setPiece('a6', Bishop, WHITE);
     expect('Bb5').toBeParsedAs(5, 0, 4, 1);
     
@@ -78,7 +78,7 @@ describe("NotationProcessor", function() {
     expect('Ba4b5').toBeParsedAs(3, 0, 4, 1)
   });
 
-  it("Handles knight moves", function() {
+  it("handles knight moves", function() {
     this.setPiece('e2', Knight, WHITE);
     expect('Ng3').toBeParsedAs(1, 4, 2, 6);
     expect('Nf4').toBeParsedAs(1, 4, 3, 5);
@@ -96,7 +96,7 @@ describe("NotationProcessor", function() {
     expect('Nf4').toBeParsedAs(1, 6, 3, 5);
   });
 
-  it("Handles rook moves", function() {
+  it("handles rook moves", function() {
     this.chessBoard.startingAction = BLACK
 
     this.setPiece('a4', Rook, BLACK);
@@ -107,7 +107,7 @@ describe("NotationProcessor", function() {
     expect('Rhe4').toBeParsedAs(3, 7, 3, 4);
   });
 
-  it("Handles queen moves", function() {
+  it("handles queen moves", function() {
     this.setPiece('b4', Queen, WHITE);
     expect('Qe4').toBeParsedAs(3, 1, 3, 4);
 
@@ -116,7 +116,7 @@ describe("NotationProcessor", function() {
     expect('Q1xe4+').toBeParsedAs(0, 1, 3, 4);
   });
 
-  it("Handles king moves", function() {
+  it("handles king moves", function() {
     this.chessBoard.startingAction = WHITE
     expect('Ke2').toBeParsedAs(0, 4, 1, 4);
   
@@ -127,5 +127,25 @@ describe("NotationProcessor", function() {
   it("returns a move when the source squareIndex is not truthy", function() {
     this.setPiece('a1', Rook, WHITE);
     expect('Ra4').toBeParsedAsAlgebraic('a1', 'a4');
+  });
+
+  it("builds sliding piece disambiguations", function() {
+    this.chessBoard.startingAction = BLACK;
+    this.setPiece('a1', Queen, BLACK);
+    this.setPiece('b1', Queen, BLACK);
+    expect(this.getPiece('a1').buildDisambiguation(
+      this.chessBoard,
+      this.notationProcessor.parseAlgebraicMove('Qaa2'))).toBe('a');
+
+    this.setPiece('a3', Queen, BLACK);
+    expect(this.getPiece('a1').buildDisambiguation(
+      this.chessBoard,
+      this.notationProcessor.parseAlgebraicMove('Qa1a2'))).toBe('a1');
+
+    this.setPiece('b1');
+
+    expect(this.getPiece('a1').buildDisambiguation(
+      this.chessBoard,
+      this.notationProcessor.parseAlgebraicMove('Q1a2'))).toBe('1');
   });
 });
