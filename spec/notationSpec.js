@@ -62,7 +62,7 @@ describe("NotationProcessor", function() {
 
   it("Handles bishop moves", function() {
     this.setPiece('a6', Bishop, WHITE);
-    expect('Bb5').toBeParsedAs(0, 5, 4, 1);
+    expect('Bb5').toBeParsedAs(5, 0, 4, 1);
     
     this.setPiece('a6');
     

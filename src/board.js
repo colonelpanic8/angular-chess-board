@@ -1,3 +1,5 @@
+function sign(x) { return x ? x < 0 ? -1 : 1 : 0; }
+
 var WHITE = 1;
 var NONE = 0;
 var BLACK = -1;
@@ -55,8 +57,8 @@ function rawToRankFileSrcDst(callable) {
     if (isLegalSquare(srcRank, srcFile) && isLegalSquare(dstRank, dstFile)) {
       args = Array.apply(undefined, arguments);
       args.splice(0, 4);
-      args.unshift(srcRank*8 + srcFile);
-      args.unshift(dstRank*8 + dstFile);
+      args.unshift(srcRank * 8 + srcFile);
+      args.unshift(dstRank * 8 + dstFile);
       return callable.apply(this, args);
     }
     throw "Illegal square provided.";
@@ -75,8 +77,8 @@ function DirectionalIterator(rankIndex, fileIndex, rankDirection, fileDirection)
 DirectionalIterator.prototype = {
   hasNext: function() {
     return isLegalSquare(
-  	  this.rankIndex + this.rankDirection,
-  	  this.fileIndex + this.fileDirection
+      this.rankIndex + this.rankDirection,
+      this.fileIndex + this.fileDirection
     );
   },
   next: function() {
@@ -120,27 +122,28 @@ var Piece = {
       return this.pieceCharacter.toUpperCase()
     }
     return this.pieceCharacter;
+  },
+  isOfColor: function(piece, color) {
+    return piece.pieceCharacter == this.pieceCharacter && piece.color == color;
+  },
+  find: function(chessBoard, destination, sourceRank, sourceFile, color) {
+    var destRank = rankFromRaw(destination);
+    var destFile = fileFromRaw(destination);
+    var rankDelta = _.isNumber(sourceRank) ? sourceRank - destRank : null;
+    var fileDelta = _.isNumber(sourceFile) ? sourceFile - destFile : null;
+    var testRank, testFile;
+    color = color ? color : chessBoard.action;
+    var somethingWasFound = _.any(this.directions, function(direction) {
+      if(!(rankDelta === null) && direction[0] != rankDelta) return false;
+      if(!(fileDelta === null) && direction[1] != fileDelta) return false;
+      testRank = destRank + direction[0];
+      testFile = destFile + direction[1];
+      if(!isLegalSquare(testRank, testFile)) return false;
+      return this.isOfColor(chessBoard.getPiece(testRank, testFile), color);
+    }, this);
+    if(somethingWasFound) return rawFromRankFile(testRank, testFile);
   }
 };
-
-Piece.find = function(chessBoard, destination, sourceRank, sourceFile, color) {
-  var destRank = rankFromRaw(destination);
-  var destFile = fileFromRaw(destination);
-  var rankDelta = !isNaN(parseInt(sourceRank)) ? sourceRank - destRank : null;
-  var fileDelta = !isNaN(parseInt(sourceFile)) ? sourceFile - destFile : null;
-  var sourceRank, sourceFile;
-  color = color ? color : chessBoard.action;
-  var direction = _.find(this.directions, function(direction) {
-    if(!(rankDelta === null) && direction[0] != rankDelta) return false;
-    if(!(fileDelta === null) && direction[1] != fileDelta) return false;
-    sourceRank = destRank + direction[0];
-    sourceFile = destFile + direction[1];
-    if(!isLegalSquare(sourceRank, sourceFile)) return false;
-    var foundPiece = chessBoard.getPiece(sourceRank, sourceFile);
-    return foundPiece.pieceCharacter == this.pieceCharacter && foundPiece.color == color;
-  }, this);
-  if(direction) return rawFromRankFile(sourceRank, sourceFile);
-}
 
 Piece.__defineGetter__('squareIndex', function () {
   return this.board.board.indexOf(this);
@@ -156,19 +159,91 @@ Piece.__defineGetter__('fileIndex', function () {
 
 var SlidingPiece = Object.create(Piece);
 
-SlidingPiece.moveIterators = function(rankIndex, fileIndex) {
+SlidingPiece.moveIterators = function(rankIndex, fileIndex, invertDirection) {
+  // This is only needed if you want a really crazy kind of piece, but
+  // I couldn't resist the urge to make the code ultra correct.
+  var directionMultiplier = invertDirection ? -1 : 1;
   return _.map(this.directions, function(direction) {
-    return new DirectionalIterator(rankIndex, fileIndex, direction[0], direction[1]);
+    return new DirectionalIterator(
+      rankIndex,
+      fileIndex,
+      direction[0] * directionMultiplier,
+      direction[1] * directionMultiplier
+    );
   });
 }
 
-SlidingPiece.find = function(chessBoard, destination, sourceRank, sourceFile) {
+// This function is only used for finding pieces. This name kind of sucks.
+SlidingPiece.moveIteratorsMatching = function(destRank, destFile, sourceRank, sourceFile) {
+  var moveIterators = this.moveIterators(destRank, destFile, true);
+  if(typeof sourceRank == "number") {
+    if(sourceRank != destRank) debugger;
+    moveIterators = _.filter(moveIterators, function(moveIterator) {
+      return moveIterator.rankDirection == 0;
+    });
+  }
+  if(typeof sourceFile == "number") {
+    if(sourceFile != destFile) debugger;
+    moveIterators = _.filter(moveIterators, function(moveIterator) {
+      return moveIterator.fileDirection == 0;
+    });
+  }
+  return moveIterators;
+}
+
+SlidingPiece.find = function(chessBoard, destination, sourceRank, sourceFile, color) {
+  var destRank = rankFromRaw(destination);
+  var destFile = fileFromRaw(destination);
+
+  // We can triangulate the piece in the following cases.
+  if((typeof sourceRank == "number" && sourceRank != destRank) ||
+     (typeof sourceFile == "number" && sourceFile != destFile))
+    return this.findSimple.apply(this, arguments);
+
+  var sourceIndex = null;
+  color = color ? color : chessBoard.action;
+  var somethingWasFound = _.any(
+    this.moveIteratorsMatching(destRank, destFile, sourceRank, sourceFile),
+    function(moveIterator) {
+      while(moveIterator.hasNext()) {
+        sourceIndex = moveIterator.next();
+        if(this.isOfColor(chessBoard.getPieceRaw(sourceIndex), color))
+          return true;
+      }
+    return false;
+    }, this
+  );
+  if(somethingWasFound) return sourceIndex;
+}
+
+SlidingPiece.findSimple = function(chessBoard, destination, sourceRank, sourceFile, color) {
+  color = color ? color : chessBoard.action;
   var destRank = rankFromRaw(destination);
   var destFile = fileFromRaw(destination);
   var rankDelta = !isNaN(parseInt(sourceRank)) ? sourceRank - destRank : null;
   var fileDelta = !isNaN(parseInt(sourceFile)) ? sourceFile - destFile : null;
-  var sourceRank, sourceFile;
+  var magnitude = null;
+  var testRank, testFile;
+  var directions = this.directions;
   
+  if(rankDelta != null) {
+    directions = _.filter(directions, function (direction) {
+      return sign(direction[0]) == sign(rankDelta)
+    });
+    magnitude = Math.abs(rankDelta);
+  }
+  if(fileDelta != null) {
+    directions = _.filter(directions, function (direction) {
+      return sign(direction[1]) == sign(fileDelta)
+    });
+    magnitude = Math.abs(fileDelta);
+  }
+  var somethingWasFound = _.any(directions, function(direction) {
+    testRank = destRank + direction[0] * magnitude;
+    testFile = destFile + direction[1] * magnitude;
+    return this.isOfColor(chessBoard.getPiece(testRank, testFile), color);
+  }, this);
+  if(somethingWasFound) return rawFromRankFile(testRank, testFile);
 }
 
 var EmptySquare = Object.create(Piece);
@@ -515,12 +590,12 @@ ChessBoard.prototype.listen = function(callable) {
 
 ChessBoard.prototype.majorPieceRowForColor = function(color) {
   return [
-  	new Rook(color, this),
-  	new Knight(color, this),
-  	new Bishop(color, this),
-  	new Queen(color, this),
-  	new King(color, this),
-  	new Bishop(color, this),
+    new Rook(color, this),
+    new Knight(color, this),
+    new Bishop(color, this),
+    new Queen(color, this),
+    new King(color, this),
+    new Bishop(color, this),
     new Knight(color, this),
     new Rook(color, this)
   ];
