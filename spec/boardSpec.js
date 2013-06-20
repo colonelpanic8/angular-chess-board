@@ -1,7 +1,7 @@
 describe("ChessBoard", function() {
   beforeEach(setupChessBoardAndMatchers);
 
-  it("should not allow placing the king in check", function() {
+  it("does not allow placing the king in check", function() {
     this.chessBoard.makeLegalMove(buildMove(1, 4, 3, 4));
     this.chessBoard.makeLegalMove(buildMove(6, 3, 4, 3));
     this.chessBoard.makeLegalMove(buildMove(0, 4, 1, 4));
@@ -13,7 +13,7 @@ describe("ChessBoard", function() {
   describe("Empty ChessBoard", function() {
     beforeEach(clearChessBoard);
 
-    it("Finds kings", function() {
+    it("finds kings", function() {
       expect(King.find(this.chessBoard, squareNameToIndex('e2'))).toBeAlgebraic('e1');
       expect(King.find(this.chessBoard, squareNameToIndex('d1'))).toBeAlgebraic('e1');
       
@@ -21,7 +21,7 @@ describe("ChessBoard", function() {
       expect(King.find(this.chessBoard, squareNameToIndex('d7'))).toBeAlgebraic('e8');
     });
 
-    it("Finds knights", function() {      
+    it("finds knights", function() {      
       this.setPiece('b1', Knight, WHITE);
       expect(Knight.find(this.chessBoard, squareNameToIndex('c3'))).toBeAlgebraic('b1');
 
@@ -58,7 +58,31 @@ describe("ChessBoard", function() {
       ).toBeAlgebraic('d5');
     });
 
-    it("Finds Bishops", function() {
+    it("finds pieces with disambiguation by blockages", function() {
+      this.setPiece('c4', Rook, WHITE); // The piece we want to find.
+
+      // Below
+      this.setPiece('e3', Knight, BLACK);
+      this.setPiece('e2', Rook, WHITE); 
+
+      // Right
+      this.setPiece('f4', Pawn, BLACK);
+      this.setPiece('g4', Rook, WHITE);
+
+      // Top
+      this.setPiece('e5', Pawn, BLACK);
+      this.setPiece('e6', Rook, WHITE);
+      this.setPiece('e7', Pawn, BLACK);
+
+      expect(Rook.find(this.chessBoard, squareNameToIndex('e4'))).toBeAlgebraic('c4');
+    });
+
+    it("moves the rook when castling", function() {
+      this.setPiece('h1', Rook, WHITE);
+      console.log(this.chessBoard.boardString());
+      this.chessBoard.makeLegalMove(this.notationProcessor.parseAlgebraicMove('O-O'));
+      console.log(this.chessBoard.boardString());
+      expect(this.chessBoard.getPiece(0, 5).getName()).toBe('r');
     });
   });
 

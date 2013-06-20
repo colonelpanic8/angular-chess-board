@@ -123,4 +123,9 @@ describe("NotationProcessor", function() {
     this.chessBoard.startingAction = BLACK
     expect('Ke7').toBeParsedAs(7, 4, 6, 4);
   });
+  
+  it("returns a move when the source squareIndex is not truthy", function() {
+    this.setPiece('a1', Rook, WHITE);
+    expect('Ra4').toBeParsedAsAlgebraic('a1', 'a4');
+  });
 });

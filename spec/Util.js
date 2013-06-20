@@ -58,7 +58,7 @@ function setupChessBoardAndMatchers() {
         promotion
       );
     },
-    toBeParsedAsAlg: function(source, destination, promotion) {
+    toBeParsedAsAlgebraic: function(source, destination, promotion) {
       return toBeParsedAsRaw.bind(this)(
         squareNameToIndex(source),
         squareNameToIndex(destination),
