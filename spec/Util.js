@@ -79,6 +79,13 @@ function setupChessBoardAndMatchers() {
           ") to be (" + squareNameToIndex(algebraicMove) + ", " + algebraicMove + ")";
       }
       return this.actual == squareNameToIndex(algebraicMove);
+    },
+    toBeAlgebraics: function(algebraicMoves) {
+      var expected = _.sortBy(_.map(algebraicMoves, function(algebraicMove) {
+        return squareNameToIndex(algebraicMove);
+      }), function(a) { return a });
+      var actual = _.sortBy(this.actual, function(a) {return a});
+      return _.all(_.zip(expected, actual), function(pair) { return pair[0] == pair[1] });
     }
   });
 }

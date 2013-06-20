@@ -5,10 +5,10 @@ describe("Chess Game", function() {
   beforeEach(function() { chessGame = new ChessGame() });
 
   it("can handle a huge game", function() {
-    _.each(moves, function(move) {
-      console.log(move);
-      chessGame.makeMoveFromAlgebraic(move);
-      console.log(chessGame.chessBoard.boardString());
+    _.each(_.map(moves, function(move) {
+      return chessGame.makeMoveFromAlgebraic(move);
+    }), function(move, index) {
+      //expect(move.algebraic).toBe(moves[index]);
     });
   });
 });
