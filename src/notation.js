@@ -74,7 +74,8 @@ NotationProcessor.prototype = {
         return new Move(squareNameToIndex(disambiguation), destination);
       else {
         sourceRank = rankToIndex(disambiguation);
-        if(sourceRank == NaN) {
+        if(isNaN(sourceRank)) {
+          // The disambiguation is actually a file.
           sourceRank = null;
           sourceFile = fileToIndex(disambiguation);
         }
@@ -106,8 +107,10 @@ NotationProcessor.prototype = {
         destinationRank - this.board.action,
         fileToIndex(disambiguation[0])
       );
-    } else if(destinationRank == doubleMoveRank &&
-              this.board.getPiece(destinationRank - this.board.action, destinationFile).color == NONE) {
+    } else if(
+      destinationRank == doubleMoveRank &&
+        this.board.getPiece(destinationRank - this.board.action, destinationFile).color == NONE
+    ) {
       sourceIndex = rawFromRankFile(destinationRank - 2 * this.board.action, destinationFile);
     } else {
       sourceIndex = rawFromRankFile(destinationRank - this.board.action, destinationFile);
