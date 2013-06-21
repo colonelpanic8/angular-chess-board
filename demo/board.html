@@ -5,9 +5,11 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.1/angular.min.js"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
     <script src="../lib/patch_draggable.js"></script>
-    <script src="../src/module.js"></script>
-    <script src="../src/board.js"></script>
-    <script src="../src/directives.js"></script>
+    <script src="../src/Module.js"></script>
+    <script src="../src/Board.js"></script>
+    <script src="../src/Notation.js"></script>
+    <script src="../src/Game.js"></script>
+    <script src="../src/Directives.js"></script>
     <script type="text/javascript">
       var app = angular.module('app', ['chessBoard']);
     </script>
@@ -17,7 +19,7 @@
     <div>
       <ng-chess-board 
          square-size="70"
-         light-color="white" dark-color="black" />
+         light-color="white" dark-color="navy" />
     </div>
   </div>
   </body>
