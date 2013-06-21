@@ -23,28 +23,33 @@ describe("NotationProcessor", function() {
 
     this.setPiece('e3', Pawn, WHITE);
     expect('e4').toBeParsedAs(2, 4, 3, 4);
+    this.setPiece('d4', Pawn, BLACK);
     expect('exd4').toBeParsedAs(2, 4, 3, 3);
   });
 
   it("chooses the appropriate piece given the current action", function() {
     this.setPiece('e3', Pawn, WHITE);
+    this.setPiece('d4', Pawn, BLACK);
     expect('e4').toBeParsedAs(2, 4, 3, 4);
+    
     expect('exd4').toBeParsedAs(2, 4, 3, 3);
 
     // Check that the selected pawn is affected by the current action.
     this.chessBoard.startingAction = BLACK;
     this.setPiece('e5', Pawn, BLACK);
     expect('e4').toBeParsedAs(4, 4, 3, 4);
+    
+    this.setPiece('d4', Pawn, WHITE);
     expect('exd4').toBeParsedAs(4, 4, 3, 3);
   });
 
   it("supports castling", function() {
     expect('O-O').toBeParsedAs(0, 4, 0, 6);
-	expect('O-O-O').toBeParsedAs(0, 4, 0, 2)
+    expect('O-O-O').toBeParsedAs(0, 4, 0, 2);
     
     this.chessBoard.startingAction = BLACK;
-	expect('O-O').toBeParsedAs(7, 4, 7, 6)
-	expect('O-O-O').toBeParsedAs(7, 4, 7, 2)
+    expect('O-O').toBeParsedAs(7, 4, 7, 6);
+    expect('O-O-O').toBeParsedAs(7, 4, 7, 2);
   });
 
   it("handles promotion", function() {
@@ -57,6 +62,7 @@ describe("NotationProcessor", function() {
   });
 
   it("handles moves with both rank and file disambiguation", function() {
+    this.setPiece('Qa4', Queen, WHITE);
     expect('Qa4xa5').toBeParsedAs(3, 0, 4, 0);
   });
 
@@ -119,7 +125,7 @@ describe("NotationProcessor", function() {
   it("handles king moves", function() {
     this.chessBoard.startingAction = WHITE
     expect('Ke2').toBeParsedAs(0, 4, 1, 4);
-  
+    
     this.chessBoard.startingAction = BLACK
     expect('Ke7').toBeParsedAs(7, 4, 6, 4);
   });
