@@ -2,7 +2,7 @@ describe("ChessBoard", function() {
   beforeEach(setupChessBoardAndMatchers);
   beforeEach(clearChessBoard);
 
-  it("does not allow the kings to make a moves that leave them in check", function() {
+  it("does not allow kings to make moves that leave them in check", function() {
     this.chessBoard.reset();
     // TODO: get rid of buildMove invocations here.
     this.chessBoard.makeLegalMove(buildMove(1, 4, 3, 4));
