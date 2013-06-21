@@ -3,6 +3,7 @@ function ChessGame() {
   this.notationProcessor = new NotationProcessor(this.chessBoard);
   this.listeners = [];
   this.undoLastMove = this.chessBoard.undoLastMove.bind(this.chessBoard);
+  this.undoToMove = this.chessBoard.undoToMove.bind(this.chessBoard);
   this.boardString = this.chessBoard.boardString.bind(this.chessBoard);
 }
 
@@ -23,6 +24,8 @@ ChessGame.prototype = {
     } catch(err) {
       return null;
     }
+    console.log(this.listeners);
+    _.each(this.listeners, function(listener) {listener(move)});
     return move;
   },
   getPiece: function(squareIndex) { return this.chessBoard.getPieceRaw(squareIndex); },

@@ -1,4 +1,17 @@
-pieceNameToImage = {
+function segment(incoming, length) {
+  var output = [];
+  var current = [];
+  _.each(incoming, function(element) {
+    if(current.length < length) return current.push(element);
+    current.push(element);
+    output.push(current);
+    current = [];
+  });
+  if(current.length > 0) output.push(current);
+  return output;
+}
+
+var pieceNameToImage = {
   k: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/wk.png",
   K: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/bk.png",
   q: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/wq.png",
@@ -13,10 +26,17 @@ pieceNameToImage = {
   P: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/bp.png",
 }
 
+var tableTemplate = '<table><th class="movePair">#</th>';
+tableTemplate += '<th class="movePair">White</th><th class="movePair">Black</th>'
+tableTemplate += '<tr class="movePair" ng-repeat="movePair in movePairs">'
+tableTemplate += '<td>{{ $index + 1 }}</td>';
+tableTemplate += '<td><a ng-click="rewindTo(movePair[0])">{{ movePair[0].algebraic }}</a></td>'
+tableTemplate += '<td><a ng-click="rewindTo(movePair[1])">{{ movePair[1].algebraic }}</a></td>'
+tableTemplate += '</tr></table>'
+
 angular.module('ChessGame').directive('ngChessBoard', function () {
-  function chessBoardController($scope, $attrs, ChessGame) {
-    var chessGame = new ChessGame();
-    $scope.chessGame = chessGame;
+  function chessBoardController($scope, $attrs) {
+    var chessGame = $scope.chessGame;
     var Square = function (index, chessGame) {
       this.index = index;
       this.chessGame = chessGame;
@@ -41,7 +61,7 @@ angular.module('ChessGame').directive('ngChessBoard', function () {
       return this.file * this.size;
     });
     Square.prototype.__defineGetter__('yPosition', function () {
-      return this.rank * this.size;
+      return (7 - this.rank) * this.size;
     });
     Square.prototype.__defineGetter__('color', function () {
       return (this.rank & 0x1) == (this.file & 0x1) ?
@@ -50,7 +70,7 @@ angular.module('ChessGame').directive('ngChessBoard', function () {
     $scope.squares = _.map(_.range(64), function(squareIndex) {
       return new Square(squareIndex, chessGame);
     });
-    chessGame.listen($scope.$apply);
+    //chessGame.listen($scope.$apply);
   }
   return {
     restrict: 'E',
@@ -80,7 +100,7 @@ angular.module('ChessGame').directive('ngChessBoard', function () {
       })
     }
   }
-}).directive('ngChessPiece', function () {
+}).directive('ngChessPiece', function() {
   return {
     restrict: 'E',
     replace: true,
@@ -106,5 +126,22 @@ angular.module('ChessGame').directive('ngChessBoard', function () {
         }
       });
     }
+  }
+}).directive('ngMoveList', function() {
+  function moveListController($scope, $attrs) {
+    //$scope.chessGame.listen(function() {debugger;});
+    $scope.rewindTo = function(move) {
+      this.chessGame.undoToMove(move);
+    }
+    // $scope.__defineGetter__('movePairs', function() {
+    //   debugger;
+    //   return segment(this.chessGame.chessBoard.moves, 2);
+    // });
+  }
+  return {
+    restrict: 'E',
+    replace: true,
+    template: tableTemplate,
+    controller: moveListController
   }
 });

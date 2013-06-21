@@ -504,14 +504,12 @@ ChessBoard.prototype.makeLegalMove = function(move) {
     if(move.destFile == 6) {
       this.makeMove(move.sourceRank, 7, move.sourceRank, 5);
       move.additionalUndo = function() {
-        debugger;
         this.makeMove(move.sourceRank, 5, move.sourceRank, 7);
       }.bind(this);
     }
     if(move.destFile == 2) {
       this.makeMove(move.sourceRank, 0, move.sourceRank, 3);
       move.additionalUndo = function() {
-        debugger;
         this.makeMove(move.sourceRank, 3, move.sourceRank, 0);
       }.bind(this);
     }
@@ -620,11 +618,16 @@ ChessBoard.prototype.filterMovesForKingSafety = function(startIndex, moves) {
   }, this);
 }
 
+ChessBoard.prototype.undoToMove = function(move) {
+  while(this.undoLastMove() != move) {}
+}
+
 ChessBoard.prototype.undoLastMove = function() {
   var move = this.moves.pop();
   this.setPieceRaw(move.sourceIndex, move.piece);
   this.setPieceRaw(move.destIndex, move.takenPiece);
   if(move.additionalUndo) move.additionalUndo();
+  return move;
 }
 
 // King functions
