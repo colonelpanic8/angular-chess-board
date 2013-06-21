@@ -37,8 +37,9 @@ function assertMovesListEqual(rawMovesList, rankFileMovesList) {
 }
 
 function setupChessBoardAndMatchers() {
-  this.chessBoard = new ChessBoard();
-  this.notationProcessor = new NotationProcessor(this.chessBoard);
+  this.chessGame = new ChessGame();
+  this.chessBoard = this.chessGame.chessBoard;
+  this.notationProcessor = this.chessGame.notationProcessor;
   this.setPiece = setPiece;
   this.getPiece = getPiece;
   this.clearChessBoard = clearChessBoard;
@@ -48,13 +49,14 @@ function setupChessBoardAndMatchers() {
     var move = that.notationProcessor.parseAlgebraicMove(this.actual);
     var expectedMove = new Move(sourceIndex, destinationIndex, that.chessBoard, promotion);
     this.message = function() {
-      return "Expected " +  this.actual + " to be parsed as " + formatMove(expectedMove) +
-        ", but actual move was " + formatMove(move);
+      return "Expected " +  this.actual + " to be parsed as " + expectedMove.algebraic +
+        ", but actual move was " + move.algebraic;
     }
     if(!move) return false;
     return expectedMove.equals(move);
   }
 
+  // Notation Matchers.
   this.addMatchers({
     toBeParsedAs: function(srcRank, srcFile, dstRank, dstFile, promotion) {
       return toBeParsedAsRaw.bind(this)(
@@ -69,11 +71,10 @@ function setupChessBoardAndMatchers() {
         squareNameToIndex(destination),
         promotion
       );
-    },
-    toBeRankFile: function(rankIndex, fileIndex) {
-      return this.actual == rawFromRankFile(rankIndex, fileIndex);
     }
   });
+
+  // Comparison matchers.
   this.addMatchers({
     toBeRankFile: function(rankIndex, fileIndex) {
       return this.actual == rawFromRankFile(rankIndex, fileIndex);
@@ -91,6 +92,22 @@ function setupChessBoardAndMatchers() {
       }), function(a) { return a });
       var actual = _.sortBy(this.actual, function(a) {return a});
       return _.all(_.zip(expected, actual), function(pair) { return pair[0] == pair[1] });
+    }
+  });
+
+  this.addMatchers({
+    toBeThePosition: function(position) {
+      this.message = function() {
+        var chessBoard = new ChessBoard();
+        chessBoard.board = this.actual;
+        var leftBoardString = chessBoard.boardString();
+        chessBoard.board = position;
+        var rightBoardString = chessBoard.boardString();
+        return "Expected\n" + leftBoardString + "\nto be\n" + rightBoardString;
+      }
+      return _.all(_.zip(this.actual, position), function(pieces) {
+        return pieces[0] === pieces[1];
+      });
     }
   });
 }

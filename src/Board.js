@@ -594,7 +594,7 @@ ChessBoard.prototype.filterMovesForKingSafety = function(startIndex, moves) {
     }
   } else {
     deltaBoard.setPieceRaw(startIndex);
-    if(!this.isSquareThreatenedRaw(this.getKingPosition(piece.color))) {
+    if(!deltaBoard.isKingThreatened(piece.color)) {
       return movesToReturn;
     }
   }
@@ -603,6 +603,12 @@ ChessBoard.prototype.filterMovesForKingSafety = function(startIndex, moves) {
     deltaBoard.makeMoveRaw(startIndex, endIndex);
     return !deltaBoard.isKingThreatened(piece.color);
   }, this);
+}
+
+ChessBoard.prototype.undoLastMove = function() {
+  var move = this.moves.pop();
+  this.setPieceRaw(move.sourceIndex, move.piece);
+  this.setPieceRaw(move.destIndex, move.takenPiece);
 }
 
 // King functions
@@ -685,10 +691,6 @@ ChessBoard.prototype.boardString = function() {
 
 ChessBoard.prototype.slice = function() {
   return this.board.slice.apply(this.board, arguments);
-}
-
-ChessBoard.prototype.listen = function(callable) {
-  this.listeners.push(callable);
 }
 
 ChessBoard.prototype.majorPieceRowForColor = function(color) {
