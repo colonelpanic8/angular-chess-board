@@ -13,7 +13,7 @@ pieceNameToImage = {
   P: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/bp.png",
 }
 
-angular.module('chessBoard').directive('ngChessBoard', function () {
+angular.module('ChessGame').directive('ngChessBoard', function () {
   function chessBoardController($scope, $attrs, ChessGame) {
     var chessGame = new ChessGame();
     $scope.chessGame = chessGame;

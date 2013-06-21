@@ -1,2 +1,2 @@
-angular.module('chessBoard', []);
+angular.module('ChessGame', []);
   

@@ -2,6 +2,8 @@ function ChessGame() {
   this.chessBoard = new ChessBoard();
   this.notationProcessor = new NotationProcessor(this.chessBoard);
   this.listeners = [];
+  this.undoLastMove = this.chessBoard.undoLastMove.bind(this.chessBoard);
+  this.boardString = this.chessBoard.boardString.bind(this.chessBoard);
 }
 
 ChessGame.prototype = {
@@ -26,6 +28,9 @@ ChessGame.prototype = {
   getPiece: function(squareIndex) { return this.chessBoard.getPieceRaw(squareIndex); },
   listen: function(callable) {
     this.listeners.push(callable);
+  },
+  gameState: function() {
+    return this.chessBoard.slice(0);
   }
 }
 
@@ -33,4 +38,4 @@ ChessGame.prototype.makeMoveFromRankFile = rawToRankFileSrcDst(
   ChessGame.prototype.makeMoveFromIndices
 );
 
-angular.module('chessBoard').factory('ChessGame', function() { return ChessGame; });
+angular.module('ChessGame').factory('ChessGame', function() { return ChessGame; });
