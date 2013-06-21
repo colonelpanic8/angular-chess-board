@@ -10,16 +10,23 @@
     <script src="../src/Notation.js"></script>
     <script src="../src/Game.js"></script>
     <script src="../src/Directives.js"></script>
+    <script src="controller.js"></script>
     <script type="text/javascript">
       var app = angular.module('app', ['ChessGame']);
     </script>
   </head>
   <body>
   <div ng-app="app">
-    <div>
-      <ng-chess-board 
-         square-size="70"
-         light-color="white" dark-color="navy" />
+    <div ng-controller="BoardWithMoveViewController">
+      <table>
+        <tr>
+          <td style="width: 800px">
+            <ng-chess-board chessGame="chessGame"
+                            square-size="70" light-color="white" dark-color="navy" />
+          </td>
+          <td><ng-move-list chessGame="chessGame" /></td>
+        </tr>
+      </table>
     </div>
   </div>
   </body>

@@ -61,6 +61,17 @@ describe("ChessBoard", function() {
     expect(this.chessGame.gameState()).toBeThePosition(originalState);
   });
 
+  it("can undo en passant", function() {
+    this.setPiece('a7', Pawn, BLACK);
+    this.setPiece('b4', Pawn, WHITE);
+    this.chessGame.makeMoveFromAlgebraic('b5');
+    this.chessGame.makeMoveFromAlgebraic('a5');
+    var originalState = this.chessGame.gameState();
+    this.chessGame.makeMoveFromAlgebraic('bxa6');
+    this.chessGame.undoLastMove();
+    expect(this.chessGame.gameState()).toBeThePosition(originalState);
+  });
+
   it("finds kings", function() {
     expect(King.find(this.chessBoard, squareNameToIndex('e2'))).toBeAlgebraic('e1');
     expect(King.find(this.chessBoard, squareNameToIndex('d1'))).toBeAlgebraic('e1');
