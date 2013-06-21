@@ -34,15 +34,15 @@ function NotationProcessor(chessBoard) {
 }
 
 NotationProcessor.prototype = {
-  parseUCIMove: function(move) {
+  parseUCIMove: function(uciMove) {
     var promotion = null;
-    if(move.length > 4) {
-      move = move.slice(0, 4);
-      promotion = move[4];
+    if(uciMove.length > 4) {
+      uciMove = uciMove.slice(0, 4);
+      promotion = uciMove[4];
     }
     return this.buildMoveFromSquareNames(
-      move.slice(0, 2),
-      move.slice(2, 2),
+      uciMove.slice(0, 2),
+      uciMove.slice(2, 2),
       promotion
     );
   },
@@ -116,7 +116,7 @@ NotationProcessor.prototype = {
     }
     return new Move(sourceIndex, destinationIndex, this.board, promotion);
   },
-  buildMoveFromSquareNames: function(source, dest, promotion) {
-    
+  parseMoveFromSquareNames: function(source, dest, promotion) {
+    return new Move(squareNameToIndex(source), squareNameToIndex(dest), promotion);
   }
 }
