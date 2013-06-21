@@ -391,6 +391,7 @@ function Move(sourceIndex, destIndex, chessBoard, promotion) {
   this.sourceIndex = sourceIndex;
   this.destIndex = destIndex;
   this.promotion = promotion;
+  this.additionalUndo = null;
   if(!chessBoard) return;
   this.piece = chessBoard.getPieceRaw(sourceIndex);
   this.takenPiece = chessBoard.getPieceRaw(destIndex);
@@ -502,15 +503,29 @@ ChessBoard.prototype.makeLegalMove = function(move) {
   if(piece instanceof King && move.sourceFile == 4) {
     if(move.destFile == 6) {
       this.makeMove(move.sourceRank, 7, move.sourceRank, 5);
+      move.additionalUndo = function() {
+        debugger;
+        this.makeMove(move.sourceRank, 5, move.sourceRank, 7);
+      }.bind(this);
     }
-    if(move.destFile == 2)
+    if(move.destFile == 2) {
       this.makeMove(move.sourceRank, 0, move.sourceRank, 3);
+      move.additionalUndo = function() {
+        debugger;
+        this.makeMove(move.sourceRank, 3, move.sourceRank, 0);
+      }.bind(this);
+    }
   }
 
   // Handle clearing the passed enpassant piece.
   if(piece instanceof Pawn && move.sourceFile != move.destFile &&
-     this.getPieceRaw(move.destIndex).color == NONE)
+     this.getPieceRaw(move.destIndex).color == NONE) {
+    var capturedPawn = this.getPiece(move.destRank, move.sourceFile);
     this.setPiece(move.destRank, move.sourceFile);
+    move.additionalUndo = function() {
+      this.setPiece(move.destRank, move.sourceFile, capturedPawn);
+    }.bind(this);
+  }
   
   _.extend(move, this.makeMoveRaw(move.sourceIndex, move.destIndex));
   if(promotion) this.setPieceRaw(move.destIndex, promotion);
@@ -609,6 +624,7 @@ ChessBoard.prototype.undoLastMove = function() {
   var move = this.moves.pop();
   this.setPieceRaw(move.sourceIndex, move.piece);
   this.setPieceRaw(move.destIndex, move.takenPiece);
+  if(move.additionalUndo) move.additionalUndo();
 }
 
 // King functions
