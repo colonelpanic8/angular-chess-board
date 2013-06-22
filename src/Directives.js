@@ -2,7 +2,7 @@ function segment(incoming, length) {
   var output = [];
   var current = [];
   _.each(incoming, function(element) {
-    if(current.length < length) return current.push(element);
+    if(current.length < length - 1) return current.push(element);
     current.push(element);
     output.push(current);
     current = [];
@@ -129,14 +129,15 @@ angular.module('ChessGame').directive('ngChessBoard', function () {
   }
 }).directive('ngMoveList', function() {
   function moveListController($scope, $attrs) {
-    //$scope.chessGame.listen(function() {debugger;});
     $scope.rewindTo = function(move) {
       this.chessGame.undoToMove(move);
     }
-    // $scope.__defineGetter__('movePairs', function() {
-    //   debugger;
-    //   return segment(this.chessGame.chessBoard.moves, 2);
-    // });
+    
+    $scope.updateMovePairs = function() {
+      this.movePairs = segment(this.chessGame.chessBoard.moves, 2);
+      console.log("updating");
+    }
+    $scope.chessGame.listen($scope.updateMovePairs.bind($scope));
   }
   return {
     restrict: 'E',
