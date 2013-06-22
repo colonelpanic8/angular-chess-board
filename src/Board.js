@@ -620,6 +620,7 @@ ChessBoard.prototype.filterMovesForKingSafety = function(startIndex, moves) {
 
 ChessBoard.prototype.undoToMove = function(move) {
   while(this.undoLastMove() != move) {}
+  return move;
 }
 
 ChessBoard.prototype.undoLastMove = function() {

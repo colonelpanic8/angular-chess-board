@@ -1,9 +1,15 @@
+function withCallListeners(callable) {
+  return function() {
+    var return_value = callable.apply(this, arguments);
+    if(return_value) _.each(this.listeners, function(listener) {listener(return_value)});
+    return return_value;
+  }
+}
+
 function ChessGame() {
   this.chessBoard = new ChessBoard();
   this.notationProcessor = new NotationProcessor(this.chessBoard);
   this.listeners = [];
-  this.undoLastMove = this.chessBoard.undoLastMove.bind(this.chessBoard);
-  this.undoToMove = this.chessBoard.undoToMove.bind(this.chessBoard);
   this.boardString = this.chessBoard.boardString.bind(this.chessBoard);
 }
 
@@ -18,23 +24,31 @@ ChessGame.prototype = {
       new Move(sourceIndex, destIndex, this.chessBoard, promotion)
     );
   },
-  tryToMakeMove: function(move) {
+  tryToMakeMove: withCallListeners(function(move) {
     try {
       this.chessBoard.makeLegalMove(move);
     } catch(err) {
       return null;
     }
-    console.log(this.listeners);
-    _.each(this.listeners, function(listener) {listener(move)});
     return move;
-  },
+  }),
   getPiece: function(squareIndex) { return this.chessBoard.getPieceRaw(squareIndex); },
   listen: function(callable) {
     this.listeners.push(callable);
   },
   gameState: function() {
     return this.chessBoard.slice(0);
-  }
+  },
+  undoLastMove: withCallListeners(
+    function() {
+      return this.chessBoard.undoLastMove();
+    }
+  ),
+  undoToMove: withCallListeners(
+    function(move) {
+      return this.chessBoard.undoToMove(move);
+    }
+  )
 }
 
 ChessGame.prototype.makeMoveFromRankFile = rawToRankFileSrcDst(
