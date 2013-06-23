@@ -1,7 +1,12 @@
-function withCallListeners(callable) {
-  return function() {
+function withCallListeners(callable, isUndo) {
+  return function(move) {
+    if(!_.all(this.moveCheckers, function(moveChecker) {
+      return moveChecker(move, isUndo);
+    })) return false;
     var return_value = callable.apply(this, arguments);
-    if(return_value) _.each(this.listeners, function(listener) {listener(return_value)});
+    if(return_value) _.each(this.listeners, function(listener) {
+      listener(return_value);
+    });
     return return_value;
   }
 }
@@ -10,6 +15,7 @@ function ChessGame() {
   this.chessBoard = new ChessBoard();
   this.notationProcessor = new NotationProcessor(this.chessBoard);
   this.listeners = [];
+  this.moveCheckers = [];
   this.boardString = this.chessBoard.boardString.bind(this.chessBoard);
 }
 
@@ -36,19 +42,20 @@ ChessGame.prototype = {
   listen: function(callable) {
     this.listeners.push(callable);
   },
+  addMoveChecker: function(callable) {
+    this.moveCheckers.push(callable);
+  },
   gameState: function() {
     return this.chessBoard.slice(0);
   },
   undoLastMove: withCallListeners(
     function() {
       return this.chessBoard.undoLastMove();
-    }
-  ),
+    }, true),
   undoToMove: withCallListeners(
     function(move) {
       return this.chessBoard.undoToMove(move);
-    }
-  )
+    }, true)
 }
 
 ChessGame.prototype.makeMoveFromRankFile = rawToRankFileSrcDst(
