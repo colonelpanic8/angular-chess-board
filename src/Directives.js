@@ -70,12 +70,11 @@ angular.module('ChessGame').directive('ngChessBoard', function () {
     $scope.squares = _.map(_.range(64), function(squareIndex) {
       return new Square(squareIndex, chessGame);
     });
-    //chessGame.listen($scope.$apply);
   }
   return {
     restrict: 'E',
     replace: true,
-    template: '<ng-chess-square square="square" ng-repeat="square in squares">',
+    template: '<div class="chess-board"><ng-chess-square square="square" ng-repeat="square in squares"><div>',
     controller: chessBoardController
   }
 }).directive('ngChessSquare', function () {
@@ -132,12 +131,10 @@ angular.module('ChessGame').directive('ngChessBoard', function () {
     $scope.rewindTo = function(move) {
       this.chessGame.undoToMove(move);
     }
-    
     $scope.updateMovePairs = function() {
-      this.movePairs = segment(this.chessGame.chessBoard.moves, 2);
-      console.log("updating");
+      $scope.movePairs = segment($scope.chessGame.chessBoard.moves, 2);
     }
-    $scope.chessGame.listen($scope.updateMovePairs.bind($scope));
+    $scope.chessGame.addListener($scope.updateMovePairs);
   }
   return {
     restrict: 'E',

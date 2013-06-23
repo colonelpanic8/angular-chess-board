@@ -17,16 +17,17 @@
   </head>
   <body>
   <div ng-app="app">
-    <div ng-controller="BoardWithMoveViewController">
-      <table>
-        <tr>
-          <td style="width: 800px">
-            <ng-chess-board chessGame="chessGame"
-                            square-size="70" light-color="white" dark-color="navy" />
-          </td>
-          <td><ng-move-list chessGame="chessGame" /></td>
-        </tr>
-      </table>
+    <div ng-controller="BoardWithMoveViewController" style="width:60%;
+                                                            margin: 0 auto;">
+      <div style="float:left;">
+        <ng-chess-board chessGame="chessGame"
+                        square-size="70" light-color="#EDC8BB"
+                        dark-color="#556270" />
+        <span>test</span>
+      </div>
+      <div style="float:right;">
+        <ng-move-list chessGame="chessGame" />
+      </div>
     </div>
   </div>
   </body>
