@@ -39,7 +39,7 @@ ChessGame.prototype = {
     return move;
   }),
   getPiece: function(squareIndex) { return this.chessBoard.getPieceRaw(squareIndex); },
-  listen: function(callable) {
+  addListener: function(callable) {
     this.listeners.push(callable);
   },
   addMoveChecker: function(callable) {
@@ -61,5 +61,9 @@ ChessGame.prototype = {
 ChessGame.prototype.makeMoveFromRankFile = rawToRankFileSrcDst(
   ChessGame.prototype.makeMoveFromIndices
 );
+
+ChessGame.prototype.__defineGetter__('movesList', function() {
+  return this.chessBoard.moves;
+});
 
 angular.module('ChessGame').factory('ChessGame', function() { return ChessGame; });
