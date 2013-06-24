@@ -27,7 +27,7 @@ var pieceNameToImage = {
 }
 
 var tableTemplate = '<table><th class="movePair">#</th>';
-tableTemplate += '<th class="movePair">White</th><th class="movePair">Black</th>'
+tableTemplate += '<th class="movePair">White <br> &#9817;</th><th class="movePair">Black <br> &#9823;</th>'
 tableTemplate += '<tr class="movePair" ng-repeat="movePair in movePairs">'
 tableTemplate += '<td>{{ $index + 1 }}</td>';
 tableTemplate += '<td><a ng-click="rewindTo(movePair[0])">{{ movePair[0].algebraic }}</a></td>'
