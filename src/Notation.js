@@ -54,10 +54,10 @@ NotationProcessor.prototype = {
     // Handle castling.
     var backRankIndex = this.board.action == WHITE ? 0 : 7;
     if(algebraicMove.toUpperCase() == "O-O") {
-      return buildMove(backRankIndex, 4, backRankIndex, 6);
+      return buildMove(backRankIndex, 4, backRankIndex, 6, this.board);
     }
     if(algebraicMove.toUpperCase() == "O-O-O") {
-      return buildMove(backRankIndex, 4, backRankIndex, 2);
+      return buildMove(backRankIndex, 4, backRankIndex, 2, this.board);
     }
  
     if(algebraicMove[0].isLower()) return this.parsePawnMove(algebraicMove);
