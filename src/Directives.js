@@ -36,6 +36,7 @@ tableTemplate += '</tr></table>'
 
 angular.module('ChessGame').directive('ngChessBoard', function () {
   function chessBoardController($scope, $attrs) {
+    $scope.squareSize = $attrs.squareSize;
     var chessGame = $scope.chessGame;
     var Square = function (index, chessGame) {
       this.index = index;
@@ -74,7 +75,7 @@ angular.module('ChessGame').directive('ngChessBoard', function () {
   return {
     restrict: 'E',
     replace: true,
-    template: '<div class="chess-board"><ng-chess-square square="square" ng-repeat="square in squares"><div>',
+    template: '<div class="chess-board" style="width: {{8 * squareSize}}px; height: {{8 * squareSize}}px; position: relative;"><ng-chess-square square="square" ng-repeat="square in squares"><div>',
     controller: chessBoardController
   }
 }).directive('ngChessSquare', function () {
