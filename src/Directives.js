@@ -130,12 +130,16 @@ angular.module('ChessGame').directive('ngChessBoard', function () {
 }).directive('ngMoveList', function() {
   function moveListController($scope, $attrs) {
     $scope.rewindTo = function(move) {
+      if(move.algebraic === "...") return;
       this.chessGame.undoToMove(move);
     }
     $scope.updateMovePairs = function() {
-      $scope.movePairs = segment($scope.chessGame.chessBoard.moves, 2);
+      var moveList = $scope.chessGame.chessBoard.moves.slice(0);
+      moveList.push({algebraic: "..."});
+      $scope.movePairs = segment(moveList, 2);
     }
     $scope.chessGame.addListener($scope.updateMovePairs);
+    $scope.updateMovePairs();
   }
   return {
     restrict: 'E',
