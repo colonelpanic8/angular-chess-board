@@ -459,13 +459,11 @@ Move.prototype.equals = function(move) {
     this.promotion == move.promotion;
 }
 
-function buildMove(srcRank, srcFile, dstRank, dstFile, promotion) {
-  return new Move(
-    rawFromRankFile(srcRank, srcFile),
-    rawFromRankFile(dstRank, dstFile),
-    promotion
-  );
-}
+var buildMove = rawToRankFileSrcDst(function() {
+  var moveInstance = Object.create(Move.prototype);
+  Move.apply(moveInstance, arguments);
+  return moveInstance;
+});
 
 function ChessBoard() {
   this.reset()
