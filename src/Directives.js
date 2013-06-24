@@ -70,11 +70,19 @@ angular.module('ChessGame').directive('ngChessBoard', function () {
     $scope.squares = _.map(_.range(64), function(squareIndex) {
       return new Square(squareIndex, chessGame);
     });
+    $scope.__defineGetter__('segmentedSquares', function() {
+      return _.map(_.range(0, 64, 8), function(index) {
+        return $scope.squares.slice(64 - (index + 8), 64 - index);
+      });
+    });
   }
   return {
     restrict: 'E',
     replace: true,
-    template: '<div class="chess-board"><ng-chess-square square="square" ng-repeat="square in squares"><div>',
+    template: '<table class="chess-board" style="position: relative">' +
+      '<tr ng-repeat="squareRow in segmentedSquares">' +
+      '<td><ng-chess-square square="square" ng-repeat="square in squareRow" ></td>' +
+      '</tr>' + '</table>',
     controller: chessBoardController
   }
 }).directive('ngChessSquare', function () {
