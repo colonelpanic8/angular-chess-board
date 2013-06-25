@@ -12,18 +12,18 @@ function segment(incoming, length) {
 }
 
 var pieceNameToImage = {
-  k: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/wk.png",
-  K: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/bk.png",
-  q: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/wq.png",
-  Q: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/bq.png",
-  r: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/wr.png",
-  R: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/br.png",
-  n: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/wn.png",
-  N: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/bn.png",
-  b: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/wb.png",
-  B: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/bb.png",
-  p: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/wp.png",
-  P: "http://images.chesscomfiles.com/js/chess/images/chess/pieces/modern2/45/bp.png",
+  k: "♔",
+  K: "♚",
+  q: "♕",
+  Q: "♛",
+  r: "♖",
+  R: "♜",
+  n: "♘",
+  N: "♞",
+  b: "♗",
+  B: "♝",
+  p: "♙",
+  P: "♟"
 }
 
 var tableTemplate = '<table><th class="movePair">#</th>';
@@ -105,10 +105,13 @@ angular.module('ChessGame').directive('ngChessBoard', function () {
     restrict: 'E',
     replace: true,
     scope: {
-      square: "=square"
+      square: "="
     },
-    template: '<img src="{{ square.getPieceImage() }}" style="width: 100%;" ng-hide="square.getPieceImage() == null" >',
+    template: '<span style="font-size: {{ square.size.toString() }}px; position: relative; top: {{ -square.size * 1/4 }}px; cursor:pointer;" ng-hide="square.getPieceImage() == null" >{{ square.getPieceImage() }}</span>',
     link: function (scope, element, attrs) {
+      scope.topOffset = function() {
+        return -scope.square.size * 1/4;
+      }
       element.draggable({zIndex: 999999})
       element.draggable({
         disable: false,
@@ -117,7 +120,7 @@ angular.module('ChessGame').directive('ngChessBoard', function () {
         start: function(event, ui) {
         },
         stop: function(event, ui) {
-          element.css("top", "0px");
+          element.css("top", scope.topOffset() + "px");
           element.css("left", "0px");
         },
         drag: function(event, ui) {
