@@ -40,9 +40,9 @@ NotationProcessor.prototype = {
       uciMove = uciMove.slice(0, 4);
       promotion = uciMove[4];
     }
-    return this.buildMoveFromSquareNames(
+    return this.parseMoveFromSquareNames(
       uciMove.slice(0, 2),
-      uciMove.slice(2, 2),
+      uciMove.slice(2, 4),
       promotion
     );
   },
@@ -117,6 +117,11 @@ NotationProcessor.prototype = {
     return new Move(sourceIndex, destinationIndex, this.board, promotion);
   },
   parseMoveFromSquareNames: function(source, dest, promotion) {
-    return new Move(squareNameToIndex(source), squareNameToIndex(dest), promotion);
+    return new Move(
+      squareNameToIndex(source),
+      squareNameToIndex(dest),
+      this.board,
+      promotion
+    );
   }
 }

@@ -25,6 +25,11 @@ ChessGame.prototype = {
       this.notationProcessor.parseAlgebraicMove(algebraicMove)
     );
   },
+  makeMoveFromUCI: function(uciMove) {
+    return this.tryToMakeMovge(
+      this.notationProcessor.parseUCIMove(uciMove)
+    );
+  },
   makeMoveFromIndices: function(sourceIndex, destIndex, promotion) {
     return this.tryToMakeMove(
       new Move(sourceIndex, destIndex, this.chessBoard, promotion)

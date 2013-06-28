@@ -71,6 +71,7 @@ angular.module('ChessGame').directive('ngChessBoard', function () {
     $scope.squares = _.map(_.range(64), function(squareIndex) {
       return new Square(squareIndex, chessGame);
     });
+    $scope.chessGame.addListener($scope.$apply.bind($scope));
   }
   return {
     restrict: 'E',
