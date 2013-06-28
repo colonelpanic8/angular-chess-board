@@ -26,7 +26,7 @@ ChessGame.prototype = {
     );
   },
   makeMoveFromUCI: function(uciMove) {
-    return this.tryToMakeMovge(
+    return this.tryToMakeMove(
       this.notationProcessor.parseUCIMove(uciMove)
     );
   },
