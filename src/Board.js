@@ -453,6 +453,11 @@ Move.prototype.__defineGetter__('algebraic', function() {
     this.promotionString + this.checkString;
 });
 
+Move.prototype.__defineGetter__('uci', function() {
+  var promotion = this.promotion ? this.promotion.prototype.movePrefix : "";
+  return indexToSquareName(this.sourceIndex) + indexToSquareName(this.destIndex) + promotion;
+});
+
 Move.prototype.equals = function(move) {
   return this.sourceIndex == move.sourceIndex &&
     this.destIndex == move.destIndex &&
