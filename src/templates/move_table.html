@@ -1,0 +1,10 @@
+<table class='move-table'>
+  <th>#</th>
+  <th>White <br> &#9817;</th>
+  <th>Black <br> &#9823;</th>
+  <tr ng-repeat="movePair in movePairs">
+    <td>{{ $index + 1 }}</td>
+    <td><a ng-click="rewindTo(movePair[0])">{{ movePair[0].algebraic }}</a></td>
+    <td><a ng-click="rewindTo(movePair[1])">{{ movePair[1].algebraic }}</a></td>
+  </tr>
+</table>
