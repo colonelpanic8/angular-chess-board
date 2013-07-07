@@ -5,14 +5,16 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.1/angular.min.js"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
     <script src="../lib/patch_draggable.js"></script>
-    <script src="../src/Module.js"></script>
-    <script src="../src/Board.js"></script>
-    <script src="../src/Notation.js"></script>
-    <script src="../src/Game.js"></script>
-    <script src="../src/Directives.js"></script>
+    <script src="../src/module.js"></script>
+    <script src="../src/board.js"></script>
+    <script src="../src/notation.js"></script>
+    <script src="../src/game.js"></script>
+    <script src="../src/directives.js"></script>
     <script src="controller.js"></script>
     <script type="text/javascript">
-      var app = angular.module('app', ['ChessGame']);
+      var app = angular.module('app', ['ChessGame']).run(function(loadTemplates) {
+        loadTemplates("/src/templates/");
+      });
     </script>
   </head>
   <body>
@@ -20,13 +22,12 @@
     <div ng-controller="BoardWithMoveViewController" style="width:60%;
                                                             margin: 0 auto;">
       <div style="float:left;">
-        <ng-chess-board chessGame="chessGame"
-                        square-size="70" light-color="#EDC8BB"
-                        dark-color="#556270" />
-        <span>test</span>
+        <chess-board chess-game="chessGame"
+                        square-size="70" light-color="'#EDC8BB'"
+                        dark-color="'#556270'" />
       </div>
       <div style="float:right;">
-        <ng-move-list chessGame="chessGame" />
+        <move-list chessGame="chessGame" />
       </div>
     </div>
   </div>

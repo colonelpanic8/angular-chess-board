@@ -126,6 +126,7 @@ var Piece = {
   isOfColor: function(piece, color) {
     return piece.pieceCharacter == this.pieceCharacter && piece.color == color;
   },
+  isEmpty: false,
   find: function(chessBoard, destination, sourceRank, sourceFile, color, findAll) {
     var destRank = rankFromRaw(destination);
     var destFile = fileFromRaw(destination);
@@ -297,6 +298,7 @@ SlidingPiece.findSimple = function(chessBoard, destination, sourceRank, sourceFi
 var EmptySquare = Object.create(Piece);
 EmptySquare.color = NONE;
 EmptySquare.pieceCharacter = " ";
+EmptySquare.isEmpty = true;
 
 function buildPieceType(directions, prototype, pieceCharacter) {
   var PieceType = function(color, board) {
