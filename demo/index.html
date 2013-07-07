@@ -11,8 +11,10 @@
     <script src="../src/notation.js"></script>
     <script src="../src/game.js"></script>
     <script src="../src/directives.js"></script>
-    <script src="controller.js"></script>
     <script type="text/javascript">
+      function BoardWithMoveViewController($scope, ChessGame) {
+        $scope.chessGame = new ChessGame();
+      }
       var app = angular.module('app', ['ChessGame']).run(function(loadTemplates) {
         loadTemplates("/src/templates/");
       });
@@ -20,8 +22,7 @@
   </head>
   <body>
   <div ng-app="app">
-    <div ng-controller="BoardWithMoveViewController" style="width:60%;
-                                                            margin: 0 auto;">
+    <div ng-controller="BoardWithMoveViewController" style="width:60%; margin: 0 auto;">
       <div style="float:left;">
         <chess-board chess-game="chessGame"
                         square-size="70" light-color="'#EDC8BB'"
