@@ -26,7 +26,7 @@ var pieceNameToCharacter = {
   P: "♟"
 }
 
-angular.module('ChessGame').directive('chessBoard', function ($templateCache) {
+angular.module('ChessGame').directive('chessBoard', function () {
   return {
     restrict: 'E',
     replace: true,
@@ -36,7 +36,7 @@ angular.module('ChessGame').directive('chessBoard', function ($templateCache) {
       lightColor: "=lightColor",
       darkColor: "=darkColor"
     },
-    templateUrl: $templateCache.get("board.html"),
+    templateUrl: "board.html",
     link: function (scope, element, attrs) {
       scope.style = {
         width: (8 * scope.squareSize) + "px",
@@ -44,7 +44,6 @@ angular.module('ChessGame').directive('chessBoard', function ($templateCache) {
         position: "relative",
       }
       var chessGame = scope.chessGame;
-      debugger;
       var Square = function (index, chessGame) {
         this.index = index;
         this.chessGame = chessGame;
@@ -123,7 +122,7 @@ angular.module('ChessGame').directive('chessBoard', function ($templateCache) {
     restrict: 'E',
     replace: true,
     scope: {
-      square: "="
+      square: "=square"
     },
     templateUrl: 'piece.html',
     link: function (scope, element, attrs) {
@@ -131,7 +130,7 @@ angular.module('ChessGame').directive('chessBoard', function ($templateCache) {
         return -scope.square.size * 1/4;
       }
       scope.style = {
-        "font-size": square.size.toString() + "px",
+        "font-size": scope.square.size + "px",
         position: "relative",
         top: scope.topOffset() + "px",
         cursor: "pointer"
@@ -171,8 +170,7 @@ angular.module('ChessGame').directive('chessBoard', function ($templateCache) {
   return {
     restrict: 'E',
     replace: true,
-    template: "<div></div>",
-    //templateUrl: "move_table.html",
+    templateUrl: "move_table.html",
     controller: moveListController
   }
 });
