@@ -4,8 +4,12 @@ angular.module('ChessGame', []).factory(
       _.each(
         ["board.html", "square.html", "piece.html", "move_table.html"], 
         function(templateName) {
-          $http.get(basePath + templateName).success(function(html) {
-            $templateCache.put(templateName, html);
+          $.ajax({
+            url: basePath + templateName,
+            success: function(html) {
+              $templateCache.put(templateName, html);
+            },
+            async: false
           });
         });
     }
