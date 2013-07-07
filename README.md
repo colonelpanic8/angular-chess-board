@@ -1,8 +1,13 @@
 ChessBoard
 ==========
 
-A flexible implementation of a chess board with algebraic notation processing and an understanding of the rules of the game. Uses angular.js.
+A flexible implementation of a chess board with algebraic notation
+processing and an understanding of the rules of the game. Uses
+angular.js for UI components.
 
-=====
+=========
 
-See demo/index.html for an example of how to use ChessBoard. Note that the loadTemplates factory must be invoked properly to ensure that the angular components function.
+See demo/index.html for an example of how to use this package. The
+only tricky part of getting this to work is invoking the loadTemplate
+function properly. That function should be invoked with the path where
+the templates for the angular directives are hosted.
