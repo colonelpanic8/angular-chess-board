@@ -17,6 +17,7 @@ function ChessGame() {
   this.listeners = [];
   this.moveCheckers = [];
   this.boardString = this.chessBoard.boardString.bind(this.chessBoard);
+  this.parseAlgebraicMove = this.notationProcessor.parseAlgebraicMove.bind(this.notationProcessor);
 }
 
 ChessGame.prototype = {

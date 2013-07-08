@@ -34,7 +34,8 @@ angular.module('ChessGame').directive('chessBoard', function () {
       chessGame: "=chessGame",
       squareSize: "=squareSize",
       lightColor: "=lightColor",
-      darkColor: "=darkColor"
+      darkColor: "=darkColor",
+      squareSet: "=squareSet"
     },
     templateUrl: "board.html",
     link: function (scope, element, attrs) {
@@ -47,6 +48,7 @@ angular.module('ChessGame').directive('chessBoard', function () {
       var Square = function (index, chessGame) {
         this.index = index;
         this.chessGame = chessGame;
+        this.highlightColor = null;
       }
       Square.prototype = {
         size: scope.squareSize,
@@ -80,15 +82,29 @@ angular.module('ChessGame').directive('chessBoard', function () {
         return {
           width: this.size + "px",
           height: this.size + "px",
-          background: this.color,
+          background: this.highlightColor ? this.highlightColor : this.color,
           position: "absolute",
           left: this.xPosition + "px",
           top: this.yPosition + "px"
         }
       });
-      scope.squares = _.map(_.range(64), function(squareIndex) {
-        return new Square(squareIndex, chessGame);
-      });
+      scope.squareSet = {
+        squares: _.map(_.range(64), function(squareIndex) {
+          return new Square(squareIndex, chessGame);
+        }),
+        clearHighlights: function() {
+          _.each(this.squares, function(square) {
+            square.highlightColor = null;
+          });
+        },
+        setHighlight: function(index, highlightColor) {
+          this.squares[index].highlightColor = highlightColor;
+        },
+        setNewHighlight: function() {
+          this.clearHighlights();
+          this.setHighlight.apply(this, arguments);
+        }
+      }
       scope.chessGame.addListener(scope.$apply.bind(scope));
     }
   }
