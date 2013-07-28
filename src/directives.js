@@ -76,7 +76,7 @@ angular.module('ChessGame').directive('chessBoard', function () {
       });
       Square.prototype.__defineGetter__('color', function () {
         return (this.rank & 0x1) == (this.file & 0x1) ?
-          this.lightColor : this.darkColor;
+          this.darkColor : this.lightColor;
       });
       Square.prototype.__defineGetter__('style', function() {
         return {
