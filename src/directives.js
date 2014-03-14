@@ -34,8 +34,7 @@ angular.module('ChessGame').directive('chessBoard', function () {
       chessGame: "=chessGame",
       squareSize: "=squareSize",
       lightColor: "=lightColor",
-      darkColor: "=darkColor",
-      squareSet: "=squareSet"
+      darkColor: "=darkColor"
     },
     templateUrl: "board.html",
     link: function (scope, element, attrs) {
