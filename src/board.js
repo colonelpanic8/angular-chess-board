@@ -362,11 +362,15 @@ Pawn.prototype.findSpecialMoves = function(rankIndex, fileIndex, board) {
        this.isEnpassantAvailable(newRankIndex, newFileIndex, board))
       foundMoves.push(rawFromRankFile(newRankIndex, newFileIndex));
   }, this);
-  if(board.getPiece(newRankIndex, fileIndex).color == NONE)
+  // Check for moves 1 square forward.
+  if(board.getPiece(newRankIndex, fileIndex).color == NONE) {
     foundMoves.push(rawFromRankFile(newRankIndex, fileIndex));
-  newRankIndex += this.color;
-  if(rankIndex == backRankSquares[this.color] + this.color && board.getPiece(newRankIndex, fileIndex).color == NONE)
-    foundMoves.push(rawFromRankFile(newRankIndex, fileIndex));
+    // Check for initial double move.
+    newRankIndex += this.color;
+    if(rankIndex == backRankSquares[this.color] +
+       this.color && board.getPiece(newRankIndex, fileIndex).color == NONE)
+      foundMoves.push(rawFromRankFile(newRankIndex, fileIndex));
+  }
   return foundMoves;
 }
 

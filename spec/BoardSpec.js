@@ -54,7 +54,6 @@ describe("ChessBoard", function() {
 
     this.chessGame.makeMoveFromAlgebraic('O-O');
     this.chessGame.makeMoveFromAlgebraic('O-O-O');
-    console.log(this.chessGame.boardString());
     
     this.chessGame.undoLastMove();
     this.chessGame.undoLastMove();
@@ -167,6 +166,14 @@ describe("ChessBoard", function() {
 
     expect(Queen.findAll(this.chessBoard, squareNameToIndex('c3'))).
       toBeAlgebraics(['a1', 'd4', 'c4', 'a3']);
+  });
+
+  it("prevents pawns from moving through other pieces on double move", function() {
+    this.setPiece('e2', Pawn, WHITE);
+    this.setPiece('e3', Pawn, WHITE);
+    console.log(this.chessGame.boardString());
+    expect(this.chessBoard.getLegalMovesRaw(squareNameToIndex('e2'))).
+      toBeAlgebraics([]);
   });
 
 });
