@@ -154,4 +154,14 @@ describe("NotationProcessor", function() {
       this.chessBoard,
       this.notationProcessor.parseAlgebraicMove('Q1a2'))).toBe('1');
   });
+
+  it("correctly reports that enpassant moves are taking moves", function() {
+    this.setPiece('h4', Pawn, WHITE);
+    this.chessGame.makeMoveFromAlgebraic('h5');
+    this.setPiece('g7', Pawn, BLACK);
+    this.chessGame.makeMoveFromAlgebraic('g5');
+    move = this.chessGame.makeMoveFromAlgebraic('hxg6');
+    expect(move.algebraic).toEqual('hxg6');
+    expect(move.takenPiece).toBeInstanceOf(Pawn, BLACK);
+  });
 });

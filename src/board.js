@@ -403,6 +403,7 @@ function Move(sourceIndex, destIndex, chessBoard, promotion) {
   this.takenPiece = chessBoard.getPieceRaw(destIndex);
   this.disambiguation = this.piece.buildDisambiguation(chessBoard, this);
   this.checkString = this.getCheck(chessBoard);
+  this._takenPieceIndex = null;
 }
 
 Move.prototype.getCheck = function(chessBoard) {
@@ -457,6 +458,10 @@ Move.prototype.__defineGetter__('algebraic', function() {
   return this.piece.movePrefix + this.disambiguation + 
     this.takeString + this.algebraicDest +
     this.promotionString + this.checkString;
+});
+
+Move.prototype.__defineGetter__('takenPieceIndex', function() {
+  return this._takenPieceIndex || this.destIndex;
 });
 
 Move.prototype.__defineGetter__('uci', function() {
@@ -529,12 +534,11 @@ ChessBoard.prototype.makeLegalMove = function(move) {
      this.getPieceRaw(move.destIndex).color == NONE) {
     var capturedPawn = this.getPiece(move.sourceRank, move.destFile);
     this.setPiece(move.sourceRank, move.destFile);
-    move.additionalUndo = function() {
-      this.setPiece(move.sourceRank, move.destFile, capturedPawn);
-    }.bind(this);
+    move.takenPiece = capturedPawn;
+    move._takenPieceIndex = rawFromRankFile(move.sourceRank, move.destFile);
   }
   
-  _.extend(move, this.makeMoveRaw(move.sourceIndex, move.destIndex));
+  this.makeMoveRaw(move.sourceIndex, move.destIndex);
   if(promotion) this.setPieceRaw(move.destIndex, promotion);
   this.moves.push(move);
   return move;
@@ -635,7 +639,8 @@ ChessBoard.prototype.undoToMove = function(move) {
 ChessBoard.prototype.undoLastMove = function() {
   var move = this.moves.pop();
   this.setPieceRaw(move.sourceIndex, move.piece);
-  this.setPieceRaw(move.destIndex, move.takenPiece);
+  this.setPieceRaw(move.takenPieceIndex, move.takenPiece);
+  if (move.takenPieceIndex != move.destIndex) this.setPieceRaw(move.destIndex);
   if(move.additionalUndo) move.additionalUndo();
   return move;
 }
