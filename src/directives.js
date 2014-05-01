@@ -43,12 +43,18 @@ angular.module('ChessGame').directive('chessBoard', function () {
         position: "relative"
       }
       var chessGame = scope.chessGame;
-      var Square = function (index, chessGame) {
+      scope.currentSquare = null;
+      scope.legalMoves = [];
+      var Square = function (index, scope) {
         this.index = index;
         this.chessGame = chessGame;
         this.highlightColor = null;
+        this.topLevelScope = scope;
       }
       Square.prototype = {size: scope.squareSize}
+      Square.prototype.__defineGetter__('chessGame', function() {
+        return this.topLevelScope.chessGame;
+      })
       Square.prototype.__defineGetter__('piece', function() {
         return this.chessGame.getPiece(this.index);
       })
@@ -73,6 +79,9 @@ angular.module('ChessGame').directive('chessBoard', function () {
       Square.prototype.__defineGetter__('isDark', function () {
         return (this.rank & 0x1) == (this.file & 0x1);
       });
+      Square.prototype.__defineGetter__('currentPieceCanReach', function() {
+        return _.contains(this.topLevelScope.legalMoves, this.index);
+      });
       Square.prototype.__defineGetter__('style', function() {
         return {
           width: this.size + "px",
@@ -84,11 +93,13 @@ angular.module('ChessGame').directive('chessBoard', function () {
       });
       Square.prototype.__defineGetter__('classes', function() {
         var classes = [this.isDark ? "dark-square" : "light-square", scope.cssClass];
+        if (this.currentPieceCanReach)
+          classes.push("legal-move");
         return classes;
       });
       scope.squareSet = {
         squares: _.map(_.range(64), function(squareIndex) {
-          return new Square(squareIndex, chessGame);
+          return new Square(squareIndex, scope);
         }),
         clearHighlights: function() {
           _.each(this.squares, function(square) {
@@ -161,10 +172,18 @@ angular.module('ChessGame').directive('chessBoard', function () {
         revert: "invalid",
       }).draggable({
         start: function(event, ui) {
+          scope.square.topLevelScope.currentSquare = scope.square;
+          scope.square.topLevelScope.legalMoves = scope.square.chessGame.getLegalMovesRaw(
+            scope.square.index
+          );
+          scope.square.topLevelScope.$apply();
         },
         stop: function(event, ui) {
           element.css("top", scope.topOffset() + "px");
           element.css("left", "0px");
+          scope.square.topLevelScope.currentSquare = null;
+          scope.square.topLevelScope.legalMoves = [];
+          scope.square.topLevelScope.$apply();
         },
         drag: function(event, ui) {
         },
