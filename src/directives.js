@@ -54,9 +54,11 @@ angular.module('ChessGame').directive('chessBoard', function () {
         lightColor: scope.lightColor,
         darkColor: scope.darkColor,
       }
+      Square.prototype.__defineGetter__('piece', function() {
+        return this.chessGame.getPiece(this.index);
+      })
       Square.prototype.__defineGetter__('pieceCharacter', function() {
-        piece = this.chessGame.getPiece(this.index);
-        if (piece) return pieceNameToCharacter[piece.getName()];
+        if (this.piece) return pieceNameToCharacter[this.piece.getName()];
       });
       Square.prototype.__defineGetter__('rank', function () {
         return rankFromRaw(this.index);
@@ -111,23 +113,29 @@ angular.module('ChessGame').directive('chessBoard', function () {
   return {
     restrict: 'E',
     replace: true,
-    scope: {
-      square: "=square"
-    },
+    scope: {square: "=square"},
     templateUrl: "square.html",
     link: function (scope, element, attrs) {
       element.droppable({
         accept: function(draggable) {
-          return true;
+          pieceScope = angular.element(draggable).scope();
+          return scope.square.chessGame.isLegalMove(pieceScope.square.index,
+                                                    scope.square.index);
+
         },
         drop: function(event, ui) {
-          piece_scope = angular.element(event.toElement || event.relatedTarget).scope()
-          scope.square.chessGame.makeMoveFromIndices(
-            piece_scope.square.index,
-            scope.square.index
-          );
-          scope.$apply();
-          piece_scope.$apply();
+          pieceScope = angular.element(event.toElement || event.relatedTarget).scope()
+          console.log(pieceScope.square.piece);
+          console.log(pieceScope.square.piece instanceof Pawn);
+          if (pieceScope.square.piece instanceof Pawn && (scope.square.rank == 0 || scope.square.rank == 7)) {
+            
+          }
+          
+          if (scope.square.chessGame.makeMoveFromIndices(pieceScope.square.index,
+                                                         scope.square.index)) {
+            scope.$apply();
+            pieceScope.$apply();
+          }
         }
       })
     }
