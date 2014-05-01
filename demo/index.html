@@ -20,11 +20,23 @@
       });
     </script>
     <style media="screen" type="text/css">
+      .chess-board.other {
+        float: right;
+      }
+      .chess-board.board {
+        float: left;
+      }
       .dark-square {
           background: #0F1C28;
       }
       .light-square {
           background: #F3CF5B;
+      }
+      .other.dark-square {
+          background: white;
+      }
+      .other.light-square {
+          background: red;
       }
       .legal-move {
           background: #037E8C;
@@ -37,11 +49,32 @@
   </head>
   <body>
   <div ng-app="app">
-    <div ng-controller="BoardWithMoveViewController" style="width:60%; margin: 0 auto;">
+    <div style="clear: both;">
+      Since these two chessboards share the same chess game instance,
+      they will always have identical board state. They have been styled
+      differently and one shows the game from black's perspective.
+    </div>
+    <div ng-controller="BoardWithMoveViewController" style="width:60%; margin: 0 auto;clear: both;">
       <div style="float:left;">
-        <chess-board chess-game="chessGame" square-size="70" css-class="'board'">
+        <chess-board chess-game="chessGame"
+                     square-size="35" css-class="'board'"></chess-board>
+        <chess-board chess-game="chessGame"
+                     square-size="35" css-class="'other'" inverted="true"></chess-board>
       </div>
-      <div style="float:right;">
+      <div style="float:left;">
+        <move-list chessGame="chessGame" />
+      </div>
+    </div>
+    <div style="clear: both;">
+      This Board has its own state so it will not be affected by the action on
+      the other boards on this page.
+    </div>
+    <div ng-controller="BoardWithMoveViewController" style="width:60%; margin: 0 auto; clear: both;">
+      <div style="float:left;">
+        <chess-board chess-game="chessGame"
+                     square-size="70" css-class="'board'"></chess-board>>
+      </div>
+      <div style="float:left;">
         <move-list chessGame="chessGame" />
       </div>
     </div>

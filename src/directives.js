@@ -33,7 +33,8 @@ angular.module('ChessGame').directive('chessBoard', function () {
     scope: {
       chessGame: "=chessGame",
       cssClass: "=cssClass",
-      squareSize: "=squareSize"
+      squareSize: "=squareSize",
+      inverted: "=inverted"
     },
     templateUrl: "board.html",
     link: function (scope, element, attrs) {
@@ -71,10 +72,12 @@ angular.module('ChessGame').directive('chessBoard', function () {
         return chessGame.getPiece(this.index).isEmpty;
       });
       Square.prototype.__defineGetter__('xPosition', function () {
-        return this.file * this.size;
+        var multiplier = !scope.inverted ? this.file : (7 - this.file) ;
+        return multiplier * this.size;
       });
       Square.prototype.__defineGetter__('yPosition', function () {
-        return (7 - this.rank) * this.size;
+        var multiplier = !scope.inverted ? (7 - this.rank) : this.rank;
+        return multiplier * this.size;
       });
       Square.prototype.__defineGetter__('isDark', function () {
         return (this.rank & 0x1) == (this.file & 0x1);
