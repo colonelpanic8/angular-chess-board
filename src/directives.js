@@ -32,16 +32,15 @@ angular.module('ChessGame').directive('chessBoard', function () {
     replace: true,
     scope: {
       chessGame: "=chessGame",
-      squareSize: "=squareSize",
-      lightColor: "=lightColor",
-      darkColor: "=darkColor"
+      cssClass: "=cssClass",
+      squareSize: "=squareSize"
     },
     templateUrl: "board.html",
     link: function (scope, element, attrs) {
       scope.style = {
         width: (8 * scope.squareSize) + "px",
         height: (8 * scope.squareSize) + "px",
-        position: "relative",
+        position: "relative"
       }
       var chessGame = scope.chessGame;
       var Square = function (index, chessGame) {
@@ -49,11 +48,7 @@ angular.module('ChessGame').directive('chessBoard', function () {
         this.chessGame = chessGame;
         this.highlightColor = null;
       }
-      Square.prototype = {
-        size: scope.squareSize,
-        lightColor: scope.lightColor,
-        darkColor: scope.darkColor,
-      }
+      Square.prototype = {size: scope.squareSize}
       Square.prototype.__defineGetter__('piece', function() {
         return this.chessGame.getPiece(this.index);
       })
@@ -75,19 +70,21 @@ angular.module('ChessGame').directive('chessBoard', function () {
       Square.prototype.__defineGetter__('yPosition', function () {
         return (7 - this.rank) * this.size;
       });
-      Square.prototype.__defineGetter__('color', function () {
-        return (this.rank & 0x1) == (this.file & 0x1) ?
-          this.darkColor : this.lightColor;
+      Square.prototype.__defineGetter__('isDark', function () {
+        return (this.rank & 0x1) == (this.file & 0x1);
       });
       Square.prototype.__defineGetter__('style', function() {
         return {
           width: this.size + "px",
           height: this.size + "px",
-          background: this.highlightColor ? this.highlightColor : this.color,
           position: "absolute",
           left: this.xPosition + "px",
           top: this.yPosition + "px"
         }
+      });
+      Square.prototype.__defineGetter__('classes', function() {
+        var classes = [this.isDark ? "dark-square" : "light-square", scope.cssClass];
+        return classes;
       });
       scope.squareSet = {
         squares: _.map(_.range(64), function(squareIndex) {

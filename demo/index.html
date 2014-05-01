@@ -19,14 +19,20 @@
         loadTemplates("/src/templates/");
       });
     </script>
+    <style media="screen" type="text/css">
+      .dark-square {
+          background: #556270
+      }
+      .light-square {
+          background: #EDC8BB
+      }
+    </style>
   </head>
   <body>
   <div ng-app="app">
     <div ng-controller="BoardWithMoveViewController" style="width:60%; margin: 0 auto;">
       <div style="float:left;">
-        <chess-board chess-game="chessGame"
-                        square-size="70" light-color="'#EDC8BB'"
-                        dark-color="'#556270'" />
+        <chess-board chess-game="chessGame" square-size="70" css-class="'board'">
       </div>
       <div style="float:right;">
         <move-list chessGame="chessGame" />
