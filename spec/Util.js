@@ -71,6 +71,12 @@ function setupChessBoardAndMatchers() {
         squareNameToIndex(destination),
         promotion
       );
+    },
+    toBeInstanceOf: function(pieceType, color) {
+      return this.actual instanceof pieceType && this.actual.color == color;
+    },
+    toBeEmpty: function() {
+      return this.actual == EmptySquare;
     }
   });
 

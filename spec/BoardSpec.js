@@ -171,9 +171,19 @@ describe("ChessBoard", function() {
   it("prevents pawns from moving through other pieces on double move", function() {
     this.setPiece('e2', Pawn, WHITE);
     this.setPiece('e3', Pawn, WHITE);
-    console.log(this.chessGame.boardString());
     expect(this.chessBoard.getLegalMovesRaw(squareNameToIndex('e2'))).
       toBeAlgebraics([]);
+  });
+
+  it("remove captured pawn when enpassant is performed.", function() {
+    this.setPiece('h4', Pawn, WHITE);
+    this.chessGame.makeMoveFromAlgebraic('h5');
+    this.setPiece('g7', Pawn, BLACK);
+    this.chessGame.makeMoveFromAlgebraic('g5');
+    this.chessGame.makeMoveFromAlgebraic('hxg6');
+    expect(this.getPiece('g6')).toBeInstanceOf(Pawn, WHITE);
+    expect(this.getPiece('g5')).toBeEmpty();
+    console.log(this.chessGame.boardString());
   });
 
 });

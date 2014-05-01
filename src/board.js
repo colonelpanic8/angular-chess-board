@@ -527,10 +527,10 @@ ChessBoard.prototype.makeLegalMove = function(move) {
   // Handle clearing the passed enpassant piece.
   if(piece instanceof Pawn && move.sourceFile != move.destFile &&
      this.getPieceRaw(move.destIndex).color == NONE) {
-    var capturedPawn = this.getPiece(move.destRank, move.sourceFile);
-    this.setPiece(move.destRank, move.sourceFile);
+    var capturedPawn = this.getPiece(move.sourceRank, move.destFile);
+    this.setPiece(move.sourceRank, move.destFile);
     move.additionalUndo = function() {
-      this.setPiece(move.destRank, move.sourceFile, capturedPawn);
+      this.setPiece(move.sourceRank, move.destFile, capturedPawn);
     }.bind(this);
   }
   
