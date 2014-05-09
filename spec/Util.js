@@ -16,6 +16,12 @@ function getPiece(algebraicName) {
   return this.chessBoard.getPieceRaw(squareNameToIndex(algebraicName));
 }
 
+function checkMove(algebraicMove, algebraicSource, algebraicDest) {
+  var move = this.notationProcessor.parseAlgebraicMove(algebraicMove);
+  expect(move.algebraicSource).toBe(algebraicSource);
+  expect(move.algebraicDest).toBe(algebraicDest);
+}
+
 function formatMove(move) {
   if(!move) return "null";
   var baseString =  "(" + move.sourceRank.toString() + ", " + move.sourceFile.toString() + 
@@ -42,6 +48,7 @@ function setupChessBoardAndMatchers() {
   this.notationProcessor = this.chessGame.notationProcessor;
   this.setPiece = setPiece;
   this.getPiece = getPiece;
+  this.checkMove = checkMove;
   this.clearChessBoard = clearChessBoard;
 
   var that = this;

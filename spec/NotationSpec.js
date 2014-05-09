@@ -164,4 +164,19 @@ describe("NotationProcessor", function() {
     expect(move.algebraic).toEqual('hxg6');
     expect(move.takenPiece).toBeInstanceOf(Pawn, BLACK);
   });
+
+  it("handles difficult disambiguations", function() {
+    this.setPiece('b4', Queen, WHITE)
+    this.setPiece('a2', Queen, WHITE)
+    this.setPiece('c3', Queen, WHITE)
+    this.setPiece('d2', Queen, WHITE)
+    this.setPiece('e5', Queen, WHITE)
+    this.setPiece('e2', Queen, WHITE)
+    this.checkMove('Qbb2', 'b4', 'b2')
+    this.checkMove('Qab2', 'a2', 'b2')
+    this.checkMove('Qcb2', 'c3', 'b2')
+
+    this.setPiece('c3')
+    this.checkMove('Qeb2', 'e5', 'b2')
+  });
 });
