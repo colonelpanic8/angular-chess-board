@@ -95,7 +95,7 @@ angular.module('ChessGame').directive('chessBoard', function () {
         }
       });
       Square.prototype.__defineGetter__('classes', function() {
-        var classes = [this.isDark ? "dark-square" : "light-square", scope.cssClass];
+        var classes = [this.isDark ? "dark-square" : "light-square"];
         if (this.currentPieceCanReach)
           classes.push("legal-move");
         return classes;
@@ -136,8 +136,6 @@ angular.module('ChessGame').directive('chessBoard', function () {
         },
         drop: function(event, ui) {
           pieceScope = angular.element(event.toElement || event.relatedTarget).scope()
-          console.log(pieceScope.square.piece);
-          console.log(pieceScope.square.piece instanceof Pawn);
           if (pieceScope.square.piece instanceof Pawn && (scope.square.rank == 0 || scope.square.rank == 7)) {
             
           }
@@ -155,9 +153,7 @@ angular.module('ChessGame').directive('chessBoard', function () {
   return {
     restrict: 'E',
     replace: true,
-    scope: {
-      square: "=square"
-    },
+    scope: {square: "=square"},
     templateUrl: 'piece.html',
     link: function (scope, element, attrs) {
       scope.topOffset = function() {
@@ -176,9 +172,7 @@ angular.module('ChessGame').directive('chessBoard', function () {
       }).draggable({
         start: function(event, ui) {
           scope.square.topLevelScope.currentSquare = scope.square;
-          scope.square.topLevelScope.legalMoves = scope.square.chessGame.getLegalMovesRaw(
-            scope.square.index
-          );
+          scope.square.topLevelScope.legalMoves = scope.square.chessGame.getLegalMovesRaw(scope.square.index);
           scope.square.topLevelScope.$apply();
         },
         stop: function(event, ui) {

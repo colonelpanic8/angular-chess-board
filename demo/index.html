@@ -32,10 +32,10 @@
       .light-square {
           background: #F3CF5B;
       }
-      .other.dark-square {
+      .other .dark-square {
           background: white;
       }
-      .other.light-square {
+      .other .light-square {
           background: red;
       }
       .legal-move {
@@ -72,7 +72,7 @@
     <div ng-controller="BoardWithMoveViewController" style="width:60%; margin: 0 auto; clear: both;">
       <div style="float:left;">
         <chess-board chess-game="chessGame"
-                     square-size="70" css-class="'board'"></chess-board>>
+                     square-size="70" css-class="'other'"></chess-board>>
       </div>
       <div style="float:left;">
         <move-list chessGame="chessGame" />
