@@ -26,6 +26,61 @@ var pieceNameToCharacter = {
   P: "♟"
 }
 
+
+var Square = function (index, scope, chessGame) {
+  this.index = index;
+  this.chessGame = chessGame;
+  this.topLevelScope = scope;
+}
+Square.prototype.__defineGetter__('size', function() { return this.topLevelScope.squareSize });
+Square.prototype.__defineGetter__('chessGame', function() {
+  return this.topLevelScope.chessGame;
+})
+Square.prototype.__defineGetter__('piece', function() {
+  return this.chessGame.getPiece(this.index);
+})
+Square.prototype.__defineGetter__('pieceCharacter', function() {
+  if (this.piece) return pieceNameToCharacter[this.piece.getName()];
+});
+Square.prototype.__defineGetter__('rank', function () {
+  return rankFromRaw(this.index);
+});
+Square.prototype.__defineGetter__('file', function () {
+  return fileFromRaw(this.index);
+});
+Square.prototype.__defineGetter__('hasPiece', function () {
+  return chessGame.getPiece(this.index).isEmpty;
+});
+Square.prototype.__defineGetter__('xPosition', function () {
+  var multiplier = !this.topLevelScope.inverted ? this.file : (7 - this.file) ;
+  return multiplier * this.size;
+});
+Square.prototype.__defineGetter__('yPosition', function () {
+  var multiplier = !this.topLevelScope.inverted ? (7 - this.rank) : this.rank;
+  return multiplier * this.size;
+});
+Square.prototype.__defineGetter__('isDark', function () {
+  return (this.rank & 0x1) == (this.file & 0x1);
+});
+Square.prototype.__defineGetter__('currentPieceCanReach', function() {
+  return _.contains(this.topLevelScope.legalMoves, this.index);
+});
+Square.prototype.__defineGetter__('style', function() {
+  return {
+    width: this.size + "px",
+    height: this.size + "px",
+    position: "absolute",
+    left: this.xPosition + "px",
+    top: this.yPosition + "px"
+  }
+});
+Square.prototype.__defineGetter__('classes', function() {
+  var classes = [this.isDark ? "dark-square" : "light-square"];
+  if (this.currentPieceCanReach)
+    classes.unshift("legal-move");
+  return classes;
+});
+
 angular.module('ChessGame').directive('chessBoard', function () {
   return {
     restrict: 'E',
@@ -43,79 +98,12 @@ angular.module('ChessGame').directive('chessBoard', function () {
         height: (8 * scope.squareSize) + "px",
         position: "relative"
       }
-      var chessGame = scope.chessGame;
       scope.currentSquare = null;
       scope.legalMoves = [];
-      var Square = function (index, scope) {
-        this.index = index;
-        this.chessGame = chessGame;
-        this.highlightColor = null;
-        this.topLevelScope = scope;
-      }
-      Square.prototype = {size: scope.squareSize}
-      Square.prototype.__defineGetter__('chessGame', function() {
-        return this.topLevelScope.chessGame;
-      })
-      Square.prototype.__defineGetter__('piece', function() {
-        return this.chessGame.getPiece(this.index);
-      })
-      Square.prototype.__defineGetter__('pieceCharacter', function() {
-        if (this.piece) return pieceNameToCharacter[this.piece.getName()];
-      });
-      Square.prototype.__defineGetter__('rank', function () {
-        return rankFromRaw(this.index);
-      });
-      Square.prototype.__defineGetter__('file', function () {
-        return fileFromRaw(this.index);
-      });
-      Square.prototype.__defineGetter__('hasPiece', function () {
-        return chessGame.getPiece(this.index).isEmpty;
-      });
-      Square.prototype.__defineGetter__('xPosition', function () {
-        var multiplier = !scope.inverted ? this.file : (7 - this.file) ;
-        return multiplier * this.size;
-      });
-      Square.prototype.__defineGetter__('yPosition', function () {
-        var multiplier = !scope.inverted ? (7 - this.rank) : this.rank;
-        return multiplier * this.size;
-      });
-      Square.prototype.__defineGetter__('isDark', function () {
-        return (this.rank & 0x1) == (this.file & 0x1);
-      });
-      Square.prototype.__defineGetter__('currentPieceCanReach', function() {
-        return _.contains(this.topLevelScope.legalMoves, this.index);
-      });
-      Square.prototype.__defineGetter__('style', function() {
-        return {
-          width: this.size + "px",
-          height: this.size + "px",
-          position: "absolute",
-          left: this.xPosition + "px",
-          top: this.yPosition + "px"
-        }
-      });
-      Square.prototype.__defineGetter__('classes', function() {
-        var classes = [this.isDark ? "dark-square" : "light-square"];
-        if (this.currentPieceCanReach)
-          classes.push("legal-move");
-        return classes;
-      });
       scope.squareSet = {
         squares: _.map(_.range(64), function(squareIndex) {
-          return new Square(squareIndex, scope);
-        }),
-        clearHighlights: function() {
-          _.each(this.squares, function(square) {
-            square.highlightColor = null;
-          });
-        },
-        setHighlight: function(index, highlightColor) {
-          this.squares[index].highlightColor = highlightColor;
-        },
-        setNewHighlight: function() {
-          this.clearHighlights();
-          this.setHighlight.apply(this, arguments);
-        }
+          return new Square(squareIndex, scope, scope.chessGame);
+        })
       }
       scope.chessGame.addListener(scope.$apply.bind(scope));
     }
