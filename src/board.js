@@ -400,17 +400,25 @@ function Move(sourceIndex, destIndex, chessBoard, promotion) {
   this.additionalUndo = null;
   if(!chessBoard) return;
   this.piece = chessBoard.getPieceRaw(sourceIndex);
-  this.takenPiece = chessBoard.getPieceRaw(destIndex);
+  this.takenPiece = this.getTakenPiece(chessBoard);
   this.disambiguation = this.piece.buildDisambiguation(chessBoard, this);
   this.checkString = this.getCheck(chessBoard);
   this._takenPieceIndex = null;
+}
+
+Move.prototype.getTakenPiece = function(chessBoard) {
+  if (this.piece instanceof Pawn &&
+      this.sourceFile != this.destFile &&
+      chessBoard.getPieceRaw(this.destIndex).isEmpty)
+    return chessBoard.getPiece(this.sourceRank, this.destFile);
+  return chessBoard.getPieceRaw(this.destIndex);
 }
 
 Move.prototype.getCheck = function(chessBoard) {
   var deltaBoard = new DeltaChessBoard(chessBoard);
   try {
     deltaBoard.makeLegalMove(this);
-  } catch(err) {} // We do this because some tests need this behavior.
+  } catch(err) { console.log("Illegal Move constructed...");};
   if(deltaBoard.isKingThreatened(this.piece.color * -1)) return '+';
   return '';
 }
@@ -529,19 +537,27 @@ ChessBoard.prototype.makeLegalMove = function(move) {
     }
   }
 
+  if(piece instanceof Pawn) this.handlePawnMove(move);
+  
+  this.makeMoveRaw(move.sourceIndex, move.destIndex);
+  if(promotion) this.setPieceRaw(move.destIndex, promotion);
+  this.addMove(move);
+  return move;
+}
+
+ChessBoard.prototype.addMove = function(move) {
+  this.moves.push(move);
+}
+
+ChessBoard.prototype.handlePawnMove = function(move) {
   // Handle clearing the passed enpassant piece.
-  if(piece instanceof Pawn && move.sourceFile != move.destFile &&
+  if(move.sourceFile != move.destFile &&
      this.getPieceRaw(move.destIndex).color == NONE) {
     var capturedPawn = this.getPiece(move.sourceRank, move.destFile);
     this.setPiece(move.sourceRank, move.destFile);
     move.takenPiece = capturedPawn;
     move._takenPieceIndex = rawFromRankFile(move.sourceRank, move.destFile);
   }
-  
-  this.makeMoveRaw(move.sourceIndex, move.destIndex);
-  if(promotion) this.setPieceRaw(move.destIndex, promotion);
-  this.moves.push(move);
-  return move;
 }
 
 ChessBoard.prototype.__defineGetter__('action', function () {
@@ -624,9 +640,15 @@ ChessBoard.prototype.filterMovesForKingSafety = function(startIndex, moves) {
       return movesToReturn;
     }
   }
-  return _.filter(movesToReturn, function(endIndex) {
+  return _.filter(movesToReturn, function(destIndex) {
     deltaBoard.resetToParent();
-    deltaBoard.makeMoveRaw(startIndex, endIndex);
+    if (piece instanceof Pawn) {
+      var destFile = fileFromRaw(destIndex);
+      if (startFile != destFile && this.getPieceRaw(destIndex).color == NONE) {
+        deltaBoard.setPiece(startRank, destFile);
+      }
+    }
+    deltaBoard.makeMoveRaw(startIndex, destIndex);
     return !deltaBoard.isKingThreatened(piece.color);
   }, this);
 }
@@ -774,8 +796,8 @@ DeltaBoardPrototype.resetToParent = function() {
   this.whiteKingPosition = this.parent.getKingPosition(WHITE);
   this.blackKingPosition = this.parent.getKingPosition(BLACK);
   this.deltas = {};
-  this.moves = [];
-  this.startingAction = this.parent.action;
+  this.moves = this.parent.moves.concat([]);
+  this.startingAction = WHITE;
 }
 
 DeltaBoardPrototype.getPieceRaw = function (squareIndex) {
@@ -813,6 +835,14 @@ DeltaBoardPrototype.setKingPosition = function(color, squareIndex) {
   } else {
     this.blackKingPosition = squareIndex;
   }
+}
+
+DeltaBoardPrototype.slice = function(start, end) {
+  var slice = [];
+  for(var i = start; i < end; i++) {
+    slice.push(this.getPieceRaw(i));
+  }
+  return slice;
 }
 
 function DeltaChessBoard(parent) {

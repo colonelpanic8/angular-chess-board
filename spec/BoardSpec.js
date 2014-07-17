@@ -183,7 +183,6 @@ describe("ChessBoard", function() {
     this.chessGame.makeMoveFromAlgebraic('hxg6');
     expect(this.getPiece('g6')).toBeInstanceOf(Pawn, WHITE);
     expect(this.getPiece('g5')).toBeEmpty();
-    console.log(this.chessGame.boardString());
   });
 
 });

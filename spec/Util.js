@@ -48,6 +48,16 @@ function setupChessBoardAndMatchers() {
   this.notationProcessor = this.chessGame.notationProcessor;
   this.setPiece = setPiece;
   this.getPiece = getPiece;
+  this.testGame = function(moves) {
+    var returnedMoves = _.map(moves, function(move) {
+      return this.chessGame.makeMoveFromAlgebraic(move);
+    }, this);
+    var algebraics = _.map(returnedMoves, function(move) {
+      if (move)
+        return move.algebraic;
+    });
+    expect(algebraics).toBeArray(moves);
+  };
   this.checkMove = checkMove;
   this.clearChessBoard = clearChessBoard;
 
@@ -63,6 +73,18 @@ function setupChessBoardAndMatchers() {
     return expectedMove.equals(move);
   }
 
+  
+  this.addMatchers({
+    toBeArray: function(other) {
+      var firstNotMatching = _.find(_.zip(this.actual, other), function(values) {
+        return values[0] != values[1];
+      });
+      this.message = function() {
+        return "Expected " + firstNotMatching[0] + " to be " + firstNotMatching[1];
+      }
+      return firstNotMatching === undefined;
+    }
+  });
   // Notation Matchers.
   this.addMatchers({
     toBeParsedAs: function(srcRank, srcFile, dstRank, dstFile, promotion) {
@@ -84,7 +106,7 @@ function setupChessBoardAndMatchers() {
     },
     toBeEmpty: function() {
       return this.actual == EmptySquare;
-    }
+    },
   });
 
   // Comparison matchers.
