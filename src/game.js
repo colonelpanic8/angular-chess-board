@@ -17,6 +17,7 @@ function ChessGame() {
   this.boardString = this.chessBoard.boardString.bind(this.chessBoard);
   this.parseAlgebraicMove = this.notationProcessor.parseAlgebraicMove.bind(this.notationProcessor);
   this.isLegalMove = this.chessBoard.isLegalMove.bind(this.chessBoard);
+  this.buildUCIMove = this.notationProcessor.parseUCIMove.bind(this.notationProcessor);
 }
 
 ChessGame.prototype = {
