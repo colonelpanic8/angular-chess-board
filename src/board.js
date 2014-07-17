@@ -61,6 +61,7 @@ function rawToRankFileSrcDst(callable) {
       args.unshift(srcRank * 8 + srcFile);
       return callable.apply(this, args);
     }
+    debugger;
     throw "Illegal square provided.";
   };
 }
@@ -402,7 +403,7 @@ function Move(sourceIndex, destIndex, chessBoard, promotion) {
   this.piece = chessBoard.getPieceRaw(sourceIndex);
   this.takenPiece = this.getTakenPiece(chessBoard);
   this.disambiguation = this.piece.buildDisambiguation(chessBoard, this);
-  this.checkString = this.getCheck(chessBoard);
+  this.checkString = this.getCheckString(chessBoard);
   this._takenPieceIndex = null;
 }
 
@@ -414,12 +415,13 @@ Move.prototype.getTakenPiece = function(chessBoard) {
   return chessBoard.getPieceRaw(this.destIndex);
 }
 
-Move.prototype.getCheck = function(chessBoard) {
+Move.prototype.getCheckString = function(chessBoard) {
   var deltaBoard = new DeltaChessBoard(chessBoard);
   try {
     deltaBoard.makeLegalMove(this);
-  } catch(err) { console.log("Illegal Move constructed...");};
-  if(deltaBoard.isKingThreatened(this.piece.color * -1)) return '+';
+  } catch(err) { };
+  if(deltaBoard.isKingThreatened(this.piece.color * -1))
+    return chessBoard.isMoveCheckmate(this) ? '#' : '+';
   return '';
 }
 
@@ -512,14 +514,17 @@ ChessBoard.prototype.makeLegalMove = function(move) {
   if(!this.isLegalMove(move.sourceIndex, move.destIndex)) 
     throw "The provided move is not a legal move.";
   var piece = this.getPieceRaw(move.sourceIndex);
-  var promotion = null;
 
   // Ensure that a promotion was supplied if we are on a back rank.
   if(piece instanceof Pawn && (move.destRank == 0 || move.destRank == 7)) {
     if(promotionPieces.indexOf(move.promotion) < 0) throw "No promotion provided.";
-    promotion = new move.promotion(piece.color);
   } else if(move.promotion) throw "Promotion not allowed for this move."
-  
+  return this.executeMove(move);
+}
+
+ChessBoard.prototype.executeMove = function(move) {
+  var piece = this.getPieceRaw(move.sourceIndex);
+  var promotion = move.promotion ? new move.promotion(this.action) : null;
   // Check for castles. We make the rook move, and let the normal
   // move process handle making the king move.
   if(piece instanceof King && move.sourceFile == 4) {
@@ -651,6 +656,29 @@ ChessBoard.prototype.filterMovesForKingSafety = function(startIndex, moves) {
     deltaBoard.makeMoveRaw(startIndex, destIndex);
     return !deltaBoard.isKingThreatened(piece.color);
   }, this);
+}
+
+ChessBoard.prototype.__defineGetter__('legalMovesAvailable', function() {
+  for(var i = 0; i < 64; i++) {
+    if(this.getPieceRaw(i).color == this.action &&
+       this.getLegalMovesRaw(i).length > 0)
+      return true
+  }
+  return false;
+});
+
+ChessBoard.prototype.__defineGetter__('inCheckmate', function() {
+  return this.isKingThreatened(this.action) && !this.legalMovesAvailable;
+});
+
+ChessBoard.prototype.__defineGetter__('inStalemate', function() {
+  return !this.isKingThreatened(this.action) && !this.legalMovesAvailable;
+});
+
+ChessBoard.prototype.isMoveCheckmate = function(move) {
+  var deltaBoard = new DeltaChessBoard(this);
+  deltaBoard.executeMove(move);
+  return deltaBoard.inCheckmate;
 }
 
 ChessBoard.prototype.undoToMove = function(move) {

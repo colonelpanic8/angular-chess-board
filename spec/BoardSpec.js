@@ -185,4 +185,46 @@ describe("ChessBoard", function() {
     expect(this.getPiece('g5')).toBeEmpty();
   });
 
+  it("correctly detects that an enpassant move causes checkmate", function() {
+    this.setPiece('d2', Pawn, WHITE);
+    this.setPiece('e7', Pawn, BLACK);
+    this.chessGame.makeMoveFromAlgebraic('d4');
+    this.chessGame.makeMoveFromAlgebraic('Kf7');
+    this.chessGame.makeMoveFromAlgebraic('d5');
+    this.chessGame.makeMoveFromAlgebraic('Kf6');
+    
+    this.setPiece('e3', Bishop, WHITE);
+    this.setPiece('g1', Rook, WHITE);
+    this.setPiece('e8', Rook, WHITE);
+    this.setPiece('h7', Rook, WHITE);
+    this.setPiece('h5', Rook, WHITE);
+
+    this.chessGame.makeMoveFromAlgebraic('Bd4');
+    this.chessGame.makeMoveFromAlgebraic('e5');
+    //   +-----------------+
+    //   |         r       |
+    //   |               r |
+    //   |           K     |
+    //   |       p P     r |
+    //   |       b         |
+    //   |                 |
+    //   |                 |
+    //   |         k   r   |
+    //   +-----------------+
+    
+    var move = this.notationProcessor.parseAlgebraicMove('dxe6#');
+    try {
+      expect(this.chessBoard.isMoveCheckmate(move)).toBe(true);
+    } catch(err) {debugger;}
+    this.chessGame.makeMoveFromAlgebraic('dxe6#');
+    expect(this.chessBoard.inCheckmate).toBe(true);
+  });
+
+  it("correctly detects promotion checkmate", function() {
+    this.setPiece('a7', Rook, WHITE);
+    this.setPiece('b7', Queen, WHITE);
+    var move = this.notationProcessor.parseAlgebraicMove('b8=Q#');
+    expect(this.chessBoard.isMoveCheckmate(move)).toBe(true);
+  });
+
 });

@@ -28,4 +28,8 @@ describe("Chess Game", function() {
   it("allows enpassant moves that remove check", function() {
     this.testGame(['c4', 'e5', 'Nc3', 'Nf6', 'a3', 'd5', 'cxd5', 'Nxd5', 'Nf3', 'Nc6', 'e4', 'Nxc3', 'bxc3', 'Bg4', 'h3', 'Bh5', 'g4', 'Bg6', 'd3', 'Bc5', 'Bg2', 'O-O', 'O-O', 'Qe7', 'Qb3', 'Bb6', 'Bg5', 'Qd6', 'Rad1', 'h6', 'Be3', 'Rad8', 'Nh4', 'Bh7', 'Nf5', 'Qf6', 'd4', 'exd4', 'cxd4', 'Bxf5', 'exf5', 'Nxd4', 'Qa2', 'Nc6', 'Rde1', 'Rd3', 'Bf4', 'Rfd8', 'Bg3', 'Rxg3', 'Re2', 'Qh4', 'Kh2', 'Rgd3', 'Rfe1', 'Bxf2', 'Rxf2', 'Qf6', 'Rfe2', 'Qd6+', 'Kh1', 'Rxa3', 'Qb2', 'Kh7', 'Be4', 'Rxh3+', 'Rh2', 'Rxh2+', 'Qxh2', 'Qxh2+', 'Kxh2', 'Rd2+', 'Kh3', 'Kg8', 'Re3', 'Ra2', 'Bd5', 'Rd2', 'Re8+', 'Kh7', 'Bxf7', 'Rd3+', 'Kh4', 'g5+', 'fxg6+', 'Kg7', 'Rg8+', 'Kf6', 'Rh8', 'Ne5', 'Rxh6', 'Nxf7', 'gxf7+', 'Kxf7', 'Rh7+', 'Ke6', 'Rxc7', 'Rb3', 'Kh5', 'Rb5+', 'Kg6', 'a5', 'Rc8', 'Rb4', 'g5', 'a4', 'Ra8', 'b5', 'Kg7', 'Rg4', 'g6', 'Kf5', 'Ra6', 'a3', 'Kf7', 'b4', 'g7', 'a2', 'Rxa2', 'Rxg7+', 'Kxg7', 'b3', 'Rb2']);
   });
+
+  it("detects checkmate", function() {
+    this.testGame(['e4', 'e5', 'Nf3', 'Nf6', 'Nxe5', 'Qe7', 'Nf3', 'Nxe4', 'Be2', 'Qd6', 'O-O', 'Be7', 'b3', 'Bf6', 'Ba3', 'Qb6', 'c3', 'd6', 'Bd3', 'Nc5', 'Re1+', 'Be6', 'Bf5', 'O-O', 'Bxc5', 'Qxc5', 'Bxe6', 'fxe6', 'Rxe6', 'Nd7', 'b4', 'Qd5', 'Re1', 'Rae8', 'Na3', 'Ne5', 'Nxe5', 'Bxe5', 'Qb3', 'Qxb3', 'axb3', 'a6', 'Nc4', 'b5', 'Nxe5', 'Rxe5', 'Rxe5', 'dxe5', 'Rxa6', 'Rd8', 'Ra2', 'Rd3', 'Kf1', 'e4', 'Ke2', 'Rd5', 'Ke3', 'Re5', 'Ra7', 'c6', 'g3', 'Re6', 'Ra1', 'h6', 'Re1', 'Kf7', 'Kd4', 'Rd6+', 'Ke3', 'Re6', 'Re2', 'Kf6', 'Kd4', 'Kf5', 'Kc5', 'g5', 'h3', 'h5', 'Kd4', 'g4', 'h4', 'Rd6+', 'Ke3', 'Rd3#']);
+  });
 });
