@@ -19,40 +19,40 @@
         loadTemplates("/src/templates/");
       });
     </script>
+    <link href='http://fonts.googleapis.com/css?family=Roboto:400,300,700' rel='stylesheet' type='text/css'>    
     <link rel="stylesheet" type="text/css" href="style.css">
   </head>
-  
+
   <body>
-  <div ng-app="app">
-    <div style="clear: both;">
-      Since these two chessboards share the same chess game instance,
-      they will always have identical board state. They have been styled
-      differently and one shows the game from black's perspective.
+    <div id="intro">
+      <h1>ChessBoard</h1>
+      <p>A flexible implementation of a chess board with algebraic notation processing and an understanding of the rules of the game. Uses angular.js for UI components.</p>
     </div>
-    <div class="connected-boards" ng-controller="BoardWithMoveViewController">
-      <div style="float:left;">
-        <chess-board chess-game="chessGame"
-                     square-size="35" css-class="'board'"></chess-board>
-        <chess-board chess-game="chessGame"
-                     square-size="35" css-class="'other'" inverted="true"></chess-board>
+
+    <div class="main-content" ng-app="app">
+      <p>
+        Since these two chessboards share the same chess game instance,
+        they will always have identical board state. They have been styled
+        differently and one shows the game from black's perspective.
+      </p>
+      <div class="connected-boards" ng-controller="BoardWithMoveViewController">
+        <chess-board chess-game="chessGame" square-size="35" css-class="'board'"></chess-board>
+        <chess-board chess-game="chessGame" square-size="35" css-class="'other'" inverted="true"></chess-board>
+        <div class="moves-history">
+          <move-list chessGame="chessGame" />
+        </div>
       </div>
-      <div class="moves-history">
-        <move-list chessGame="chessGame" />
+
+      <p>
+        This Board has its own state so it will not be affected by the action on
+        the other boards on this page.
+      </p>
+      <div ng-controller="BoardWithMoveViewController" class="solo-board">
+        <chess-board chess-game="chessGame" square-size="70" css-class="'other'"></chess-board>
+        <div class="moves-history">
+          <move-list chessGame="chessGame" />
+        </div>
       </div>
     </div>
-    <div style="clear: both;">
-      This Board has its own state so it will not be affected by the action on
-      the other boards on this page.
-    </div>
-    <div ng-controller="BoardWithMoveViewController" style="width:60%; margin: 0 auto; clear: both;">
-      <div style="float:left;">
-        <chess-board chess-game="chessGame"
-                     square-size="70" css-class="'other'"></chess-board>>
-      </div>
-      <div style="float:left;">
-        <move-list chessGame="chessGame" />
-      </div>
-    </div>
-  </div>
   </body>
 </html>

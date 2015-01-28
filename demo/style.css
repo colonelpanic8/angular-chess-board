@@ -1,35 +1,54 @@
 body {
-  background-color: #faf9f0;
+  font-family: 'Roboto', sans-serif;
+  margin: 0 150px 0 150px;
 }
-.chess-board.other {
-  float: right;
+body #intro {
+  margin-top: 50px;
+  text-align: center;
+  font-size: 1.6em;
 }
-.chess-board.other .light-square {
-  background: #f00;
+body .main-content {
+  margin: 0 auto;
 }
-.chess-board.other .dark-square {
-  background: #fff;
+body .main-content p {
+  font-weight: 300;
+  padding: 20px 0 20px 0;
+  clear: both;
 }
-.chess-board.other .legal-move {
-  background: #037e8c;
+body .main-content .connected-boards {
+  width: 60%;
+  margin: 0 auto;
 }
-.chess-board.board {
-  float: left;
-}
-.chess-board.board .light-square {
-  background: #f3cf5b;
-}
-.chess-board.board .dark-square {
-  background: #0f1c28;
-}
-.chess-board.board .legal-move {
-  background: #fff;
-}
-.connected-boards {
+body .main-content .solo-board {
   width: 60%;
   margin: 0 auto;
   clear: both;
 }
-.moves-history {
+body .main-content .chess-board.other {
+  float: left;
+  display: inline-block;
+}
+body .main-content .chess-board.other .light-square {
+  background: #f00;
+}
+body .main-content .chess-board.other .dark-square {
+  background: #fff;
+}
+body .main-content .chess-board.other .legal-move {
+  background: #037e8c;
+}
+body .main-content .chess-board.board {
+  float: left;
+}
+body .main-content .chess-board.board .light-square {
+  background: #f3cf5b;
+}
+body .main-content .chess-board.board .dark-square {
+  background: #0f1c28;
+}
+body .main-content .chess-board.board .legal-move {
+  background: #fff;
+}
+body .main-content .moves-history {
   float: left;
 }
