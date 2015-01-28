@@ -1,0 +1,53 @@
+// bg-color = #faf9f0
+board-dark-bg = #0F1C28
+board-light-bg = #F3CF5B
+board-legal-bg = white
+
+other-dark-bg = white
+other-light-bg = red
+other-legal-bg = #037E8C
+
+board-square-colors(light-square-color, dark-square-color, legal-square-color)
+  .light-square
+    background light-square-color
+  .dark-square
+    background dark-square-color
+  .legal-move
+    background legal-square-color
+
+body 
+  font-family 'Roboto', sans-serif
+  margin 0 150px 0 150px
+
+  #intro
+    margin-top 50px
+    text-align center
+    font-size 1.6em
+
+  .main-content
+    margin 0 auto 
+    p
+      font-weight 300
+      padding 20px 0 20px 0
+      clear both
+      
+    .connected-boards
+      width 60%
+      margin 0 auto
+    
+    .solo-board
+      width 60%
+      margin 0 auto
+      clear both
+      
+    .chess-board.other
+      float left
+      display inline-block
+      board-square-colors(other-light-bg, other-dark-bg, other-legal-bg)
+
+    .chess-board.board 
+      float left
+      board-square-colors(board-light-bg, board-dark-bg, board-legal-bg)
+      
+    .moves-history
+      float left   
