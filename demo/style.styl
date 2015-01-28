@@ -1,0 +1,35 @@
+bg-color = #faf9f0
+board-dark-bg = #0F1C28
+board-light-bg = #F3CF5B
+board-legal-bg = white
+
+other-dark-bg = white
+other-light-bg = red
+other-legal-bg = #037E8C
+
+board-square-colors(light-square-color, dark-square-color, legal-square-color)
+  .light-square
+    background light-square-color
+  .dark-square
+    background dark-square-color
+  .legal-move
+    background legal-square-color
+
+body 
+  background-color bg-color
+
+.chess-board.other
+  float right
+  board-square-colors(other-light-bg, other-dark-bg, other-legal-bg)
+
+.chess-board.board 
+  float left
+  board-square-colors(board-light-bg, board-dark-bg, board-legal-bg)
+
+.connected-boards
+  width 60%
+  margin 0 auto
+  clear both
+  
+.moves-history
+  float left

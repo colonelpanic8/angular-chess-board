@@ -1,0 +1,35 @@
+body {
+  background-color: #faf9f0;
+}
+.chess-board.other {
+  float: right;
+}
+.chess-board.other .light-square {
+  background: #f00;
+}
+.chess-board.other .dark-square {
+  background: #fff;
+}
+.chess-board.other .legal-move {
+  background: #037e8c;
+}
+.chess-board.board {
+  float: left;
+}
+.chess-board.board .light-square {
+  background: #f3cf5b;
+}
+.chess-board.board .dark-square {
+  background: #0f1c28;
+}
+.chess-board.board .legal-move {
+  background: #fff;
+}
+.connected-boards {
+  width: 60%;
+  margin: 0 auto;
+  clear: both;
+}
+.moves-history {
+  float: left;
+}

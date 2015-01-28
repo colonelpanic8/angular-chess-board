@@ -19,33 +19,9 @@
         loadTemplates("/src/templates/");
       });
     </script>
-    <style media="screen" type="text/css">
-      .chess-board.other {
-        float: right;
-      }
-      .chess-board.board {
-        float: left;
-      }
-      .board .dark-square {
-          background: #0F1C28;
-      }
-      .board .light-square {
-          background: #F3CF5B;
-      }
-      .other .dark-square {
-          background: white;
-      }
-      .other .light-square {
-          background: red;
-      }
-      .other .legal-move {
-          background: #037E8C;
-      }
-      .board .legal-move {
-          background: white;
-      }
-    </style>
+    <link rel="stylesheet" type="text/css" href="style.css">
   </head>
+  
   <body>
   <div ng-app="app">
     <div style="clear: both;">
@@ -53,14 +29,14 @@
       they will always have identical board state. They have been styled
       differently and one shows the game from black's perspective.
     </div>
-    <div ng-controller="BoardWithMoveViewController" style="width:60%; margin: 0 auto;clear: both;">
+    <div class="connected-boards" ng-controller="BoardWithMoveViewController">
       <div style="float:left;">
         <chess-board chess-game="chessGame"
                      square-size="35" css-class="'board'"></chess-board>
         <chess-board chess-game="chessGame"
                      square-size="35" css-class="'other'" inverted="true"></chess-board>
       </div>
-      <div style="float:left;">
+      <div class="moves-history">
         <move-list chessGame="chessGame" />
       </div>
     </div>
