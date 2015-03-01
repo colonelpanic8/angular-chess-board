@@ -24,23 +24,24 @@ var pieceNameToCharacter = {
   B: "♝",
   p: "♙",
   P: "♟"
-}
+};
 
 
 var Square = function (index, scope, chessGame) {
   this.index = index;
   this.chessGame = chessGame;
   this.topLevelScope = scope;
-}
-Square.prototype.__defineGetter__('size', function() { return this.topLevelScope.squareSize });
+};
+Square.prototype.__defineGetter__('size', function() { return this.topLevelScope.squareSize; });
 Square.prototype.__defineGetter__('chessGame', function() {
   return this.topLevelScope.chessGame;
-})
+});
 Square.prototype.__defineGetter__('piece', function() {
   return this.chessGame.getPiece(this.index);
-})
+});
 Square.prototype.__defineGetter__('pieceCharacter', function() {
   if (this.piece) return pieceNameToCharacter[this.piece.getName()];
+  return null;
 });
 Square.prototype.__defineGetter__('rank', function () {
   return rankFromRaw(this.index);
@@ -72,7 +73,7 @@ Square.prototype.__defineGetter__('style', function() {
     position: "absolute",
     left: this.xPosition + "px",
     top: this.yPosition + "px"
-  }
+  };
 });
 Square.prototype.__defineGetter__('classes', function() {
   var classes = [this.isDark ? "dark-square" : "light-square"];
@@ -97,17 +98,17 @@ angular.module('ChessGame').directive('chessBoard', function () {
         width: (8 * scope.squareSize) + "px",
         height: (8 * scope.squareSize) + "px",
         position: "relative"
-      }
+      };
       scope.currentSquare = null;
       scope.legalMoves = [];
       scope.squareSet = {
         squares: _.map(_.range(64), function(squareIndex) {
           return new Square(squareIndex, scope, scope.chessGame);
         })
-      }
+      };
       scope.chessGame.addListener(scope.$apply.bind(scope));
     }
-  }
+  };
 }).directive('chessSquare', function () {
   return {
     restrict: 'E',
@@ -123,8 +124,8 @@ angular.module('ChessGame').directive('chessBoard', function () {
 
         },
         drop: function(event, ui) {
-          pieceScope = angular.element(event.toElement || event.relatedTarget).scope()
-          if (pieceScope.square.piece instanceof Pawn && (scope.square.rank == 0 || scope.square.rank == 7)) {
+          pieceScope = angular.element(event.toElement || event.relatedTarget).scope();
+          if (pieceScope.square.piece instanceof Pawn && (scope.square.rank === 0 || scope.square.rank === 7)) {
             
           }
           
@@ -134,9 +135,9 @@ angular.module('ChessGame').directive('chessBoard', function () {
             pieceScope.$apply();
           }
         }
-      })
+      });
     }
-  }
+  };
 }).directive('chessPiece', function() {
   return {
     restrict: 'E',
@@ -146,17 +147,17 @@ angular.module('ChessGame').directive('chessBoard', function () {
     link: function (scope, element, attrs) {
       scope.topOffset = function() {
         return -scope.square.size * 1/4;
-      }
+      };
       scope.style = {
         "font-size": scope.square.size + "px",
         position: "relative",
         top: scope.topOffset() + "px",
         cursor: "pointer"
-      }
-      element.draggable({zIndex: 999999})
+      };
+      element.draggable({zIndex: 999999});
       element.draggable({
         disable: false,
-        revert: "invalid",
+        revert: "invalid"
       }).draggable({
         start: function(event, ui) {
           scope.square.topLevelScope.currentSquare = scope.square;
@@ -176,18 +177,18 @@ angular.module('ChessGame').directive('chessBoard', function () {
         }
       });
     }
-  }
+  };
 }).directive('moveList', function() {
   function moveListController($scope, $attrs) {
     $scope.rewindTo = function(move) {
       if(move.algebraic === "...") return;
       this.chessGame.undoToMove(move);
-    }
+    };
     $scope.updateMovePairs = function() {
       var moveList = $scope.chessGame.chessBoard.moves.slice(0);
       moveList.push({algebraic: "..."});
       $scope.movePairs = segment(moveList, 2);
-    }
+    };
     $scope.chessGame.addListener($scope.updateMovePairs);
     $scope.updateMovePairs();
   }
@@ -196,5 +197,5 @@ angular.module('ChessGame').directive('chessBoard', function () {
     replace: true,
     templateUrl: "move_table.html",
     controller: moveListController
-  }
+  };
 });
