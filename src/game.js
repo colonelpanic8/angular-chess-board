@@ -1,12 +1,12 @@
 function withCallListeners(callable, isUndo) {
   return function(move) {
-    if(!this.applyMoveCheckers(move)) return false;
+    if(!this.applyMoveCheckers(move, isUndo)) return false;
     var return_value = callable.apply(this, arguments);
     if(return_value) _.each(this.listeners, function(listener) {
       listener(return_value);
     });
     return return_value;
-  }
+  };
 }
 
 function ChessGame() {
@@ -30,8 +30,8 @@ ChessGame.prototype = {
   applyMoveCheckersRaw: function(src, dst, promotion, isUndo) {
     return this.applyMoveCheckers(new Move(src, dst, this.chessBoard, promotion));
   },
-  applyMoveCheckers: function(move) {
-    return _.all(this.moveCheckers, function(moveChecker, isUndo) {
+  applyMoveCheckers: function(move, isUndo) {
+    return _.all(this.moveCheckers, function(moveChecker) {
       return moveChecker(move, isUndo);
     });
   },
@@ -76,7 +76,7 @@ ChessGame.prototype = {
     function(move) {
       return this.chessBoard.undoToMove(move);
     }, true)
-}
+};
 
 ChessGame.prototype.makeMoveFromRankFile = rawToRankFileSrcDst(
   ChessGame.prototype.makeMoveFromIndices
